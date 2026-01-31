@@ -6,6 +6,8 @@ export function FeaturesSection() {
   const content = {
     en: {
       features: [
+        { icon: '🔗', title: 'Live Sharing', desc: 'Share real-time scores with your team' },
+        { icon: '📊', title: 'Export Reports', desc: 'Download game stats & PDF reports' },
         { icon: '🏀', title: 'Free scorekeeping', desc: '100% free, no registration required' },
         { icon: '⚡', title: 'Real-time updates', desc: 'Instant score synchronization' },
         { icon: '📱', title: 'Any device', desc: 'Works on phones, tablets & desktops' },
@@ -14,6 +16,8 @@ export function FeaturesSection() {
     },
     zh: {
       features: [
+        { icon: '🔗', title: '实时分享', desc: '与团队实时分享比分' },
+        { icon: '📊', title: '导出报告', desc: '导出比赛数据和报告' },
         { icon: '🏀', title: '免费记分', desc: '100% 免费，无需注册' },
         { icon: '⚡', title: '实时更新', desc: '即时同步比分' },
         { icon: '📱', title: '全设备支持', desc: '手机、平板、电脑均可使用' },

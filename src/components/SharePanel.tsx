@@ -367,29 +367,6 @@ VITE_FIREBASE_APP_ID=your-app-id`}
                 </div>
               </div>
 
-              {/* Edit Link */}
-              <div className="mb-4 p-3 rounded-lg bg-[var(--color-bg-primary)]">
-                <div className="flex items-center gap-2 mb-2">
-                  <span>✏️</span>
-                  <span className="font-medium text-[var(--color-text-primary)]">{t.editLink}</span>
-                </div>
-                <p className="text-xs text-[var(--color-text-secondary)] mb-2">{t.editDesc}</p>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={editShareUrl || ''}
-                    readOnly
-                    className="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] text-xs font-mono"
-                  />
-                  <button
-                    onClick={() => handleCopyLink(editShareUrl, 'edit')}
-                    className="px-3 py-2 rounded-lg font-semibold bg-[var(--color-accent)] text-white hover:bg-orange-600 transition-colors text-sm"
-                  >
-                    {copied === 'edit' ? t.copied : t.copyLink}
-                  </button>
-                </div>
-              </div>
-
               <button
                 onClick={stopSync}
                 className="w-full py-2 rounded-lg font-semibold bg-[var(--color-danger)] text-white hover:bg-red-600 transition-colors"
