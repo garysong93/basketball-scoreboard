@@ -12,7 +12,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'Basketball Scoreboard',
+        name: 'Basketball Scoreboard Online',
         short_name: 'Scoreboard',
         description: 'Professional free basketball scoreboard - offline-first, Chinese-friendly',
         theme_color: '#1a1a2e',

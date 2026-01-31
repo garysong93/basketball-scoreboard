@@ -36,7 +36,7 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xl">🏀</span>
-              <span className="font-bold">Basketball Scoreboard</span>
+              <span className="font-bold">Basketball Scoreboard Online</span>
             </div>
             <p className="text-[var(--color-text-secondary)] text-sm">
               {t.tagline}
@@ -84,7 +84,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 pt-6 border-t border-[var(--color-bg-primary)] text-center text-sm text-[var(--color-text-secondary)]">
-          © {new Date().getFullYear()} Basketball Scoreboard. Free & Open Source.
+          © {new Date().getFullYear()} Basketball Scoreboard Online. Free & Open Source.
         </div>
       </div>
     </footer>

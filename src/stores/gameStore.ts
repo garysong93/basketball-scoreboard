@@ -616,11 +616,11 @@ export const useGameStore = create<GameState & GameActions>()(
           gameTime: state.rules.periodLength,
           shotClock: state.rules.shotClock,
           home: {
-            ...createInitialTeamState(state.home.name, state.home.color),
+            ...createInitialTeamState('HOME', '#ef4444'),
             players: createDefaultPlayers(),
           },
           away: {
-            ...createInitialTeamState(state.away.name, state.away.color),
+            ...createInitialTeamState('AWAY', '#22c55e'),
             players: createDefaultPlayers(),
           },
           gameId: null, // Clear gameId for new game

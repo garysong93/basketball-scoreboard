@@ -310,7 +310,7 @@ export function RulesPage() {
       {/* Footer */}
       <footer className="bg-[var(--color-bg-secondary)] mt-12 py-8">
         <div className="max-w-4xl mx-auto px-4 text-center text-[var(--color-text-secondary)]">
-          <p>© 2024 Basketball Scoreboard. {language === 'en' ? 'Free & Open Source.' : '免费开源。'}</p>
+          <p>© 2024 Basketball Scoreboard Online. {language === 'en' ? 'Free & Open Source.' : '免费开源。'}</p>
         </div>
       </footer>
     </div>

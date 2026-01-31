@@ -93,6 +93,50 @@ export function TutorialPage() {
           ],
         },
         {
+          title: 'Share & Sync',
+          icon: '🔗',
+          steps: [
+            {
+              title: 'Start Hosting',
+              description: 'Click the Share button, then "Start Hosting" to get a 6-digit game code. Share this code with others.',
+            },
+            {
+              title: 'Share View-Only Link',
+              description: 'Copy the View-Only Link and send it to spectators. They can watch the live score without affecting the game.',
+            },
+            {
+              title: 'Join a Game',
+              description: 'Enter the 6-digit game code to join as a viewer or assistant scorekeeper.',
+            },
+            {
+              title: 'Stop Hosting',
+              description: 'Click "Stop Hosting" when you want to end the sharing session and return to local-only mode.',
+            },
+          ],
+        },
+        {
+          title: 'Export',
+          icon: '📊',
+          steps: [
+            {
+              title: 'Export as Image',
+              description: 'Click Export and choose PNG or JPG to download a screenshot of the current game state.',
+            },
+            {
+              title: 'Export PDF Report',
+              description: 'Generate a comprehensive PDF report with full game statistics, player performance, and scoring timeline.',
+            },
+            {
+              title: 'Export Game Data',
+              description: 'Download the complete game data in JSON format for backup or analysis purposes.',
+            },
+            {
+              title: 'Copy Statistics',
+              description: 'One-click copy of text-formatted game statistics to paste into messages or documents.',
+            },
+          ],
+        },
+        {
           title: 'Advanced Features',
           icon: '⚡',
           steps: [
@@ -245,6 +289,50 @@ export function TutorialPage() {
             {
               title: '记录球权',
               description: '点击队伍下方的◄►显示球权箭头，或按Q(主队)/W(客队)/P(切换)。',
+            },
+          ],
+        },
+        {
+          title: '分享同步',
+          icon: '🔗',
+          steps: [
+            {
+              title: '开始托管',
+              description: '点击分享按钮，然后点击"开始托管"获取6位游戏码。将此码分享给其他人。',
+            },
+            {
+              title: '分享观看链接',
+              description: '复制观看链接发送给观众。他们可以实时观看比分，不会影响比赛。',
+            },
+            {
+              title: '加入比赛',
+              description: '输入6位游戏码即可以观众或助理记分员身份加入。',
+            },
+            {
+              title: '停止托管',
+              description: '点击"停止托管"结束分享会话，返回仅本地模式。',
+            },
+          ],
+        },
+        {
+          title: '导出功能',
+          icon: '📊',
+          steps: [
+            {
+              title: '导出图片',
+              description: '点击导出，选择PNG或JPG下载当前比赛状态的截图。',
+            },
+            {
+              title: '导出PDF报告',
+              description: '生成包含完整比赛统计、球员表现和得分时间线的综合PDF报告。',
+            },
+            {
+              title: '导出比赛数据',
+              description: '以JSON格式下载完整比赛数据，用于备份或分析。',
+            },
+            {
+              title: '复制统计数据',
+              description: '一键复制文字格式的比赛统计数据，可粘贴到消息或文档中。',
             },
           ],
         },
@@ -431,7 +519,7 @@ export function TutorialPage() {
 
       <footer className="bg-[var(--color-bg-secondary)] mt-12 py-8">
         <div className="max-w-4xl mx-auto px-4 text-center text-[var(--color-text-secondary)]">
-          <p>© 2024 Basketball Scoreboard. {language === 'en' ? 'Free & Open Source.' : '免费开源。'}</p>
+          <p>© 2024 Basketball Scoreboard Online. {language === 'en' ? 'Free & Open Source.' : '免费开源。'}</p>
         </div>
       </footer>
     </div>
