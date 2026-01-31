@@ -16,7 +16,6 @@ export function SharePanel({ onClose }: SharePanelProps) {
     isHost,
     isViewer,
     shareUrl,
-    editShareUrl,
     isFirebaseEnabled,
     refereeRole,
     startHosting,
@@ -29,7 +28,7 @@ export function SharePanel({ onClose }: SharePanelProps) {
   const [selectedRole, setSelectedRole] = useState<RefereeRole>('viewer');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState<'readonly' | 'edit' | null>(null);
+  const [copied, setCopied] = useState<'readonly' | null>(null);
 
   const content = {
     en: {
@@ -131,7 +130,7 @@ export function SharePanel({ onClose }: SharePanelProps) {
     }
   };
 
-  const handleCopyLink = (url: string | null, type: 'readonly' | 'edit') => {
+  const handleCopyLink = (url: string | null, type: 'readonly') => {
     if (url) {
       navigator.clipboard.writeText(url);
       setCopied(type);
