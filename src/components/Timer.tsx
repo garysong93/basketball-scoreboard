@@ -2,6 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { useGameStore } from '../stores/gameStore';
 import { formatTime, formatShotClock } from '../utils/rules';
 import { translations } from '../i18n';
+import { usePermissions } from '../hooks/usePermissions';
 
 export function Timer() {
   const {
@@ -19,6 +20,7 @@ export function Timer() {
     nextPeriod,
   } = useGameStore();
 
+  const permissions = usePermissions();
   const t = translations[language];
 
   // Timer tick effect
@@ -82,52 +84,56 @@ export function Timer() {
         </div>
       </div>
 
-      {/* Timer controls - responsive layout */}
-      <div className="flex flex-wrap justify-center gap-1 sm:gap-2 mt-1 sm:mt-2">
-        <button
-          onClick={handleToggleTimer}
-          className={`px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base font-semibold text-white btn-press transition-colors ${
-            isRunning
-              ? 'bg-[var(--color-danger)] hover:bg-red-600'
-              : 'bg-[var(--color-success)] hover:bg-green-600'
-          }`}
-        >
-          {isRunning ? t.pause : t.start}
-        </button>
+      {/* Timer controls - responsive layout - only show if user has timer permissions */}
+      {permissions.canTimer && (
+        <div className="flex flex-wrap justify-center gap-1 sm:gap-2 mt-1 sm:mt-2">
+          <button
+            onClick={handleToggleTimer}
+            className={`px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base font-semibold text-white btn-press transition-colors ${
+              isRunning
+                ? 'bg-[var(--color-danger)] hover:bg-red-600'
+                : 'bg-[var(--color-success)] hover:bg-green-600'
+            }`}
+          >
+            {isRunning ? t.pause : t.start}
+          </button>
 
-        <button
-          onClick={() => resetShotClock(true)}
-          className="px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base font-semibold bg-[var(--color-accent)] text-white hover:bg-orange-600 btn-press transition-colors"
-          title="Reset shot clock (24s)"
-        >
-          24
-        </button>
+          <button
+            onClick={() => resetShotClock(true)}
+            className="px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base font-semibold bg-[var(--color-accent)] text-white hover:bg-orange-600 btn-press transition-colors"
+            title="Reset shot clock (24s)"
+          >
+            24
+          </button>
 
-        <button
-          onClick={() => resetShotClock(false)}
-          className="px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base font-semibold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
-          title="Reset shot clock (14s)"
-        >
-          14
-        </button>
+          <button
+            onClick={() => resetShotClock(false)}
+            className="px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base font-semibold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
+            title="Reset shot clock (14s)"
+          >
+            14
+          </button>
 
-        <button
-          onClick={resetGameTime}
-          className="px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base font-semibold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
-          title={t.reset}
-        >
-          {t.reset}
-        </button>
+          <button
+            onClick={resetGameTime}
+            className="px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base font-semibold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
+            title={t.reset}
+          >
+            {t.reset}
+          </button>
 
-        <button
-          onClick={nextPeriod}
-          className="px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base font-semibold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors disabled:opacity-50"
-          disabled={gameTime > 0}
-          title="Next period"
-        >
-          <span className="hidden sm:inline">{t.period}</span> →
-        </button>
-      </div>
+          {permissions.canPeriod && (
+            <button
+              onClick={nextPeriod}
+              className="px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base font-semibold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors disabled:opacity-50"
+              disabled={gameTime > 0}
+              title="Next period"
+            >
+              <span className="hidden sm:inline">{t.period}</span> →
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

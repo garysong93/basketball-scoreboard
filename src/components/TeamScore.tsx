@@ -2,6 +2,7 @@ import { useGameStore } from '../stores/gameStore';
 import { translations } from '../i18n';
 import { FoulIndicator } from './FoulIndicator';
 import { TimeoutIndicator } from './TimeoutIndicator';
+import { usePermissions } from '../hooks/usePermissions';
 import type { Team } from '../stores/gameStore';
 
 interface TeamScoreProps {
@@ -21,6 +22,7 @@ export function TeamScore({ team }: TeamScoreProps) {
     setSelectedTeam,
   } = useGameStore();
 
+  const permissions = usePermissions();
   const t = translations[language];
   const teamState = team === 'home' ? home : away;
   const hasPossession = possession === team;
@@ -59,13 +61,15 @@ export function TeamScore({ team }: TeamScoreProps) {
         {teamState.score}
       </div>
 
-      {/* Score hint */}
-      <button
-        onClick={() => setSelectedTeam(team)}
-        className="mb-2 sm:mb-3 md:mb-4 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors flex items-center gap-1 sm:gap-2"
-      >
-        📊 <span className="hidden xs:inline sm:inline">{language === 'en' ? 'Add Stats' : '添加数据'}</span>
-      </button>
+      {/* Score hint - only show if user has any edit permissions */}
+      {(permissions.canScore || permissions.canFoul || permissions.canEditPlayers) && (
+        <button
+          onClick={() => setSelectedTeam(team)}
+          className="mb-2 sm:mb-3 md:mb-4 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors flex items-center gap-1 sm:gap-2"
+        >
+          📊 <span className="hidden xs:inline sm:inline">{language === 'en' ? 'Add Stats' : '添加数据'}</span>
+        </button>
+      )}
 
       {/* Fouls and Timeouts row */}
       <div className="flex gap-3 sm:gap-4 md:gap-6 items-center">
@@ -73,32 +77,38 @@ export function TeamScore({ team }: TeamScoreProps) {
         <TimeoutIndicator team={team} />
       </div>
 
-      {/* Action buttons */}
+      {/* Action buttons - only show buttons user has permission for */}
       <div className="flex gap-1 sm:gap-2 mt-2 sm:mt-3 md:mt-4">
-        <button
-          onClick={() => addFoul(team)}
-          className="px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-semibold bg-[var(--color-warning)] text-black hover:bg-yellow-500 btn-press transition-colors"
-        >
-          <span className="hidden sm:inline">{t.addFoul}</span>
-          <span className="sm:hidden">+F</span>
-        </button>
-        <button
-          onClick={() => callTimeout(team)}
-          className="px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-semibold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
-        >
-          <span className="hidden sm:inline">{t.timeout}</span>
-          <span className="sm:hidden">TO</span>
-        </button>
-        <button
-          onClick={() => setPossession(team)}
-          className={`px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-semibold btn-press transition-colors ${
-            hasPossession
-              ? 'bg-[var(--color-accent)] text-white'
-              : 'bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600'
-          }`}
-        >
-          ◄►
-        </button>
+        {permissions.canFoul && (
+          <button
+            onClick={() => addFoul(team)}
+            className="px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-semibold bg-[var(--color-warning)] text-black hover:bg-yellow-500 btn-press transition-colors"
+          >
+            <span className="hidden sm:inline">{t.addFoul}</span>
+            <span className="sm:hidden">+F</span>
+          </button>
+        )}
+        {permissions.canTimeout && (
+          <button
+            onClick={() => callTimeout(team)}
+            className="px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-semibold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
+          >
+            <span className="hidden sm:inline">{t.timeout}</span>
+            <span className="sm:hidden">TO</span>
+          </button>
+        )}
+        {permissions.canPossession && (
+          <button
+            onClick={() => setPossession(team)}
+            className={`px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-semibold btn-press transition-colors ${
+              hasPossession
+                ? 'bg-[var(--color-accent)] text-white'
+                : 'bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600'
+            }`}
+          >
+            ◄►
+          </button>
+        )}
       </div>
     </div>
   );

@@ -96,11 +96,14 @@ export interface FirebaseGameData {
 }
 
 // Create a new game in Firebase
-export async function createGame(gameData: Omit<FirebaseGameData, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
+export async function createGame(
+  gameData: Omit<FirebaseGameData, 'id' | 'createdAt' | 'updatedAt'>,
+  existingGameId?: string
+): Promise<string | null> {
   const db = getDb();
   if (!db) return null;
 
-  const gameId = generateGameId();
+  const gameId = existingGameId || generateGameId();
   const now = Date.now();
 
   try {

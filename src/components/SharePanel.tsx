@@ -16,12 +16,12 @@ export function SharePanel({ onClose }: SharePanelProps) {
     isHost,
     isViewer,
     shareUrl,
+    editShareUrl,
     isFirebaseEnabled,
     refereeRole,
     startHosting,
     joinGame,
     stopSync,
-    copyShareLink,
     setRefereeRole,
   } = useSync();
 
@@ -29,7 +29,7 @@ export function SharePanel({ onClose }: SharePanelProps) {
   const [selectedRole, setSelectedRole] = useState<RefereeRole>('viewer');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<'readonly' | 'edit' | null>(null);
 
   const content = {
     en: {
@@ -42,8 +42,12 @@ export function SharePanel({ onClose }: SharePanelProps) {
       startHosting: 'Start Hosting',
       hosting: 'Hosting',
       hostingDesc: 'Share this link with viewers:',
-      copyLink: 'Copy Link',
+      copyLink: 'Copy',
       copied: 'Copied!',
+      readOnlyLink: 'View-Only Link',
+      readOnlyDesc: 'Share for spectators',
+      editLink: 'Edit Link',
+      editDesc: 'Share for co-referees',
       stopHosting: 'Stop Hosting',
       viewerMode: 'Viewer Mode',
       viewerModeDesc: 'You are viewing a shared game.',
@@ -74,8 +78,12 @@ export function SharePanel({ onClose }: SharePanelProps) {
       startHosting: '开始托管',
       hosting: '托管中',
       hostingDesc: '分享此链接给观众：',
-      copyLink: '复制链接',
+      copyLink: '复制',
       copied: '已复制！',
+      readOnlyLink: '只读链接',
+      readOnlyDesc: '分享给观众',
+      editLink: '编辑链接',
+      editDesc: '分享给协助裁判',
       stopHosting: '停止托管',
       viewerMode: '观众模式',
       viewerModeDesc: '你正在观看一个共享的比赛。',
@@ -123,10 +131,12 @@ export function SharePanel({ onClose }: SharePanelProps) {
     }
   };
 
-  const handleCopyLink = () => {
-    copyShareLink();
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopyLink = (url: string | null, type: 'readonly' | 'edit') => {
+    if (url) {
+      navigator.clipboard.writeText(url);
+      setCopied(type);
+      setTimeout(() => setCopied(null), 2000);
+    }
   };
 
   const getStatusColor = () => {
@@ -323,28 +333,9 @@ VITE_FIREBASE_APP_ID=your-app-id`}
               <h3 className="font-semibold text-[var(--color-success)] mb-2">
                 📡 {t.hosting}
               </h3>
-              <p className="text-sm text-[var(--color-text-secondary)] mb-3">
-                {t.hostingDesc}
-              </p>
-
-              {/* Share URL */}
-              <div className="flex gap-2 mb-4">
-                <input
-                  type="text"
-                  value={shareUrl || ''}
-                  readOnly
-                  className="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] text-sm font-mono"
-                />
-                <button
-                  onClick={handleCopyLink}
-                  className="px-4 py-2 rounded-lg font-semibold bg-[var(--color-accent)] text-white hover:bg-orange-600 transition-colors"
-                >
-                  {copied ? t.copied : t.copyLink}
-                </button>
-              </div>
 
               {/* Game code display */}
-              <div className="text-center p-4 rounded-lg bg-[var(--color-bg-primary)]">
+              <div className="text-center p-4 rounded-lg bg-[var(--color-bg-primary)] mb-4">
                 <div className="text-sm text-[var(--color-text-secondary)] mb-1">
                   {t.gameCode}
                 </div>
@@ -353,9 +344,55 @@ VITE_FIREBASE_APP_ID=your-app-id`}
                 </div>
               </div>
 
+              {/* View-Only Link */}
+              <div className="mb-3 p-3 rounded-lg bg-[var(--color-bg-primary)]">
+                <div className="flex items-center gap-2 mb-2">
+                  <span>👁️</span>
+                  <span className="font-medium text-[var(--color-text-primary)]">{t.readOnlyLink}</span>
+                </div>
+                <p className="text-xs text-[var(--color-text-secondary)] mb-2">{t.readOnlyDesc}</p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={shareUrl || ''}
+                    readOnly
+                    className="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] text-xs font-mono"
+                  />
+                  <button
+                    onClick={() => handleCopyLink(shareUrl, 'readonly')}
+                    className="px-3 py-2 rounded-lg font-semibold bg-[var(--color-accent)] text-white hover:bg-orange-600 transition-colors text-sm"
+                  >
+                    {copied === 'readonly' ? t.copied : t.copyLink}
+                  </button>
+                </div>
+              </div>
+
+              {/* Edit Link */}
+              <div className="mb-4 p-3 rounded-lg bg-[var(--color-bg-primary)]">
+                <div className="flex items-center gap-2 mb-2">
+                  <span>✏️</span>
+                  <span className="font-medium text-[var(--color-text-primary)]">{t.editLink}</span>
+                </div>
+                <p className="text-xs text-[var(--color-text-secondary)] mb-2">{t.editDesc}</p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={editShareUrl || ''}
+                    readOnly
+                    className="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] text-xs font-mono"
+                  />
+                  <button
+                    onClick={() => handleCopyLink(editShareUrl, 'edit')}
+                    className="px-3 py-2 rounded-lg font-semibold bg-[var(--color-accent)] text-white hover:bg-orange-600 transition-colors text-sm"
+                  >
+                    {copied === 'edit' ? t.copied : t.copyLink}
+                  </button>
+                </div>
+              </div>
+
               <button
                 onClick={stopSync}
-                className="w-full mt-4 py-2 rounded-lg font-semibold bg-[var(--color-danger)] text-white hover:bg-red-600 transition-colors"
+                className="w-full py-2 rounded-lg font-semibold bg-[var(--color-danger)] text-white hover:bg-red-600 transition-colors"
               >
                 {t.stopHosting}
               </button>

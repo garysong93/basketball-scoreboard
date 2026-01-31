@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { useGameStore } from '../stores/gameStore';
+import { usePermissions } from './usePermissions';
 
 export function useKeyboard() {
   const {
@@ -19,6 +20,8 @@ export function useKeyboard() {
     setFullscreen,
     isFullscreen,
   } = useGameStore();
+
+  const permissions = usePermissions();
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -49,8 +52,8 @@ export function useKeyboard() {
         return;
       }
 
-      // Home team scoring (1, 2, 3)
-      if (key === '1') {
+      // Home team scoring (1, 2, 3) - requires canScore permission
+      if (key === '1' && permissions.canScore) {
         event.preventDefault();
         if (shiftKey) {
           subtractScore('home', 1);
@@ -60,20 +63,20 @@ export function useKeyboard() {
         return;
       }
 
-      if (key === '2') {
+      if (key === '2' && permissions.canScore) {
         event.preventDefault();
         addScore('home', 2);
         return;
       }
 
-      if (key === '3') {
+      if (key === '3' && permissions.canScore) {
         event.preventDefault();
         addScore('home', 3);
         return;
       }
 
-      // Away team scoring (7, 8, 9)
-      if (key === '7') {
+      // Away team scoring (7, 8, 9) - requires canScore permission
+      if (key === '7' && permissions.canScore) {
         event.preventDefault();
         if (shiftKey) {
           subtractScore('away', 1);
@@ -83,20 +86,20 @@ export function useKeyboard() {
         return;
       }
 
-      if (key === '8') {
+      if (key === '8' && permissions.canScore) {
         event.preventDefault();
         addScore('away', 2);
         return;
       }
 
-      if (key === '9') {
+      if (key === '9' && permissions.canScore) {
         event.preventDefault();
         addScore('away', 3);
         return;
       }
 
-      // Timer control (Space)
-      if (key === ' ') {
+      // Timer control (Space) - requires canTimer permission
+      if (key === ' ' && permissions.canTimer) {
         event.preventDefault();
         if (isRunning) {
           pauseTimer();
@@ -106,8 +109,8 @@ export function useKeyboard() {
         return;
       }
 
-      // Shot clock reset (R)
-      if (key.toLowerCase() === 'r') {
+      // Shot clock reset (R) - requires canTimer permission
+      if (key.toLowerCase() === 'r' && permissions.canTimer) {
         event.preventDefault();
         if (shiftKey) {
           resetShotClock(false); // 14 seconds
@@ -117,8 +120,8 @@ export function useKeyboard() {
         return;
       }
 
-      // Fouls (F)
-      if (key.toLowerCase() === 'f') {
+      // Fouls (F) - requires canFoul permission
+      if (key.toLowerCase() === 'f' && permissions.canFoul) {
         event.preventDefault();
         if (shiftKey) {
           addFoul('away');
@@ -128,8 +131,8 @@ export function useKeyboard() {
         return;
       }
 
-      // Timeouts (T)
-      if (key.toLowerCase() === 't') {
+      // Timeouts (T) - requires canTimeout permission
+      if (key.toLowerCase() === 't' && permissions.canTimeout) {
         event.preventDefault();
         if (shiftKey) {
           callTimeout('away');
@@ -139,27 +142,27 @@ export function useKeyboard() {
         return;
       }
 
-      // Possession (Q, W, P)
-      if (key.toLowerCase() === 'q') {
+      // Possession (Q, W, P) - requires canPossession permission
+      if (key.toLowerCase() === 'q' && permissions.canPossession) {
         event.preventDefault();
         setPossession('home');
         return;
       }
 
-      if (key.toLowerCase() === 'w') {
+      if (key.toLowerCase() === 'w' && permissions.canPossession) {
         event.preventDefault();
         setPossession('away');
         return;
       }
 
-      if (key.toLowerCase() === 'p') {
+      if (key.toLowerCase() === 'p' && permissions.canPossession) {
         event.preventDefault();
         togglePossession();
         return;
       }
 
-      // Next period (N)
-      if (key.toLowerCase() === 'n') {
+      // Next period (N) - requires canPeriod permission
+      if (key.toLowerCase() === 'n' && permissions.canPeriod) {
         event.preventDefault();
         nextPeriod();
         return;
@@ -194,6 +197,7 @@ export function useKeyboard() {
       redo,
       setFullscreen,
       isFullscreen,
+      permissions,
     ]
   );
 

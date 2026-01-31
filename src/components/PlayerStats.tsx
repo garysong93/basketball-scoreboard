@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useGameStore } from '../stores/gameStore';
 import { translations } from '../i18n';
+import { usePermissions } from '../hooks/usePermissions';
 import type { Team, PlayerStats as PlayerStatsType } from '../stores/gameStore';
 
 interface PlayerStatsProps {
@@ -22,6 +23,7 @@ export function PlayerStats({ team: initialTeam, onClose }: PlayerStatsProps) {
     recordPlayerStat,
   } = useGameStore();
 
+  const permissions = usePermissions();
   const t = translations[language];
 
   // Allow switching between teams
@@ -209,18 +211,22 @@ export function PlayerStats({ team: initialTeam, onClose }: PlayerStatsProps) {
                     )}
                   </div>
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setExpandedPlayer(expandedPlayer === player.id ? null : player.id)}
-                      className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] px-1"
-                    >
-                      {expandedPlayer === player.id ? '▲' : '▼'}
-                    </button>
-                    <button
-                      onClick={() => removePlayer(currentTeam, player.id)}
-                      className="text-[var(--color-danger)] hover:bg-[var(--color-danger)]/20 rounded p-1"
-                    >
-                      🗑️
-                    </button>
+                    {permissions.canScore && (
+                      <button
+                        onClick={() => setExpandedPlayer(expandedPlayer === player.id ? null : player.id)}
+                        className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] px-1"
+                      >
+                        {expandedPlayer === player.id ? '▲' : '▼'}
+                      </button>
+                    )}
+                    {permissions.canEditPlayers && (
+                      <button
+                        onClick={() => removePlayer(currentTeam, player.id)}
+                        className="text-[var(--color-danger)] hover:bg-[var(--color-danger)]/20 rounded p-1"
+                      >
+                        🗑️
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -232,39 +238,50 @@ export function PlayerStats({ team: initialTeam, onClose }: PlayerStatsProps) {
                     <span className="text-xs text-[var(--color-text-secondary)]">PTS</span>
                   </div>
 
-                  {/* Score buttons */}
+                  {/* Score buttons - only show if user has permissions */}
                   <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => handleStatChange(player.id, 'points', 1)}
-                      className="w-9 h-9 rounded-lg bg-[var(--color-success)] text-white text-sm font-bold"
-                    >
-                      +1
-                    </button>
-                    <button
-                      onClick={() => handleStatChange(player.id, 'points', 2)}
-                      className="w-9 h-9 rounded-lg bg-[var(--color-accent)] text-white text-sm font-bold"
-                    >
-                      +2
-                    </button>
-                    <button
-                      onClick={() => handleStatChange(player.id, 'points', 3)}
-                      className="w-9 h-9 rounded-lg bg-purple-600 text-white text-sm font-bold"
-                    >
-                      +3
-                    </button>
-                    <button
-                      onClick={() => handleFoulPlayer(player.id)}
-                      className={`w-9 h-9 rounded-lg bg-[var(--color-warning)] text-black text-sm font-bold ${
-                        player.fouls >= 5 ? 'ring-2 ring-[var(--color-danger)]' : ''
-                      }`}
-                    >
-                      F{player.fouls}
-                    </button>
+                    {permissions.canScore && (
+                      <>
+                        <button
+                          onClick={() => handleStatChange(player.id, 'points', 1)}
+                          className="w-9 h-9 rounded-lg bg-[var(--color-success)] text-white text-sm font-bold"
+                        >
+                          +1
+                        </button>
+                        <button
+                          onClick={() => handleStatChange(player.id, 'points', 2)}
+                          className="w-9 h-9 rounded-lg bg-[var(--color-accent)] text-white text-sm font-bold"
+                        >
+                          +2
+                        </button>
+                        <button
+                          onClick={() => handleStatChange(player.id, 'points', 3)}
+                          className="w-9 h-9 rounded-lg bg-purple-600 text-white text-sm font-bold"
+                        >
+                          +3
+                        </button>
+                      </>
+                    )}
+                    {permissions.canFoul && (
+                      <button
+                        onClick={() => handleFoulPlayer(player.id)}
+                        className={`w-9 h-9 rounded-lg bg-[var(--color-warning)] text-black text-sm font-bold ${
+                          player.fouls >= 5 ? 'ring-2 ring-[var(--color-danger)]' : ''
+                        }`}
+                      >
+                        F{player.fouls}
+                      </button>
+                    )}
+                    {!permissions.canScore && !permissions.canFoul && (
+                      <span className="text-xs text-[var(--color-text-secondary)]">
+                        {language === 'en' ? 'View only' : '仅查看'}
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                {/* Expanded stats */}
-                {expandedPlayer === player.id && (
+                {/* Expanded stats - only show if user can score */}
+                {expandedPlayer === player.id && permissions.canScore && (
                   <div className="mt-3 pt-3 border-t border-[var(--color-bg-primary)] grid grid-cols-5 gap-2">
                     <MobileStatButton
                       label={t.assists}
@@ -399,35 +416,41 @@ export function PlayerStats({ team: initialTeam, onClose }: PlayerStatsProps) {
                     </td>
                     <td className="p-2">
                       <div className="flex items-center justify-center gap-1">
-                        <button
-                          onClick={() => handleStatChange(player.id, 'points', -1)}
-                          className="w-6 h-6 rounded bg-[var(--color-danger)] text-white text-xs font-bold"
-                          title="-1"
-                        >
-                          -
-                        </button>
-                        <span className="w-8 text-center font-bold text-lg">{player.points}</span>
-                        <button
-                          onClick={() => handleStatChange(player.id, 'points', 1)}
-                          className="w-7 h-7 rounded bg-[var(--color-success)] text-white text-xs font-bold"
-                          title="+1 (罚球)"
-                        >
-                          +1
-                        </button>
-                        <button
-                          onClick={() => handleStatChange(player.id, 'points', 2)}
-                          className="w-7 h-7 rounded bg-[var(--color-accent)] text-white text-xs font-bold"
-                          title="+2 (两分球)"
-                        >
-                          +2
-                        </button>
-                        <button
-                          onClick={() => handleStatChange(player.id, 'points', 3)}
-                          className="w-7 h-7 rounded bg-purple-600 text-white text-xs font-bold"
-                          title="+3 (三分球)"
-                        >
-                          +3
-                        </button>
+                        {permissions.canScore ? (
+                          <>
+                            <button
+                              onClick={() => handleStatChange(player.id, 'points', -1)}
+                              className="w-6 h-6 rounded bg-[var(--color-danger)] text-white text-xs font-bold"
+                              title="-1"
+                            >
+                              -
+                            </button>
+                            <span className="w-8 text-center font-bold text-lg">{player.points}</span>
+                            <button
+                              onClick={() => handleStatChange(player.id, 'points', 1)}
+                              className="w-7 h-7 rounded bg-[var(--color-success)] text-white text-xs font-bold"
+                              title="+1 (罚球)"
+                            >
+                              +1
+                            </button>
+                            <button
+                              onClick={() => handleStatChange(player.id, 'points', 2)}
+                              className="w-7 h-7 rounded bg-[var(--color-accent)] text-white text-xs font-bold"
+                              title="+2 (两分球)"
+                            >
+                              +2
+                            </button>
+                            <button
+                              onClick={() => handleStatChange(player.id, 'points', 3)}
+                              className="w-7 h-7 rounded bg-purple-600 text-white text-xs font-bold"
+                              title="+3 (三分球)"
+                            >
+                              +3
+                            </button>
+                          </>
+                        ) : (
+                          <span className="w-8 text-center font-bold text-lg">{player.points}</span>
+                        )}
                       </div>
                     </td>
                     <td className="p-2">
@@ -439,46 +462,55 @@ export function PlayerStats({ team: initialTeam, onClose }: PlayerStatsProps) {
                         >
                           {player.fouls}
                         </span>
-                        <button
-                          onClick={() => handleFoulPlayer(player.id)}
-                          className="w-6 h-6 rounded bg-[var(--color-warning)] text-black text-xs"
-                        >
-                          +
-                        </button>
+                        {permissions.canFoul && (
+                          <button
+                            onClick={() => handleFoulPlayer(player.id)}
+                            className="w-6 h-6 rounded bg-[var(--color-warning)] text-black text-xs"
+                          >
+                            +
+                          </button>
+                        )}
                       </div>
                     </td>
                     <StatCell
                       value={player.assists}
                       onIncrement={() => handleStatChange(player.id, 'assists', 1)}
                       onDecrement={() => handleStatChange(player.id, 'assists', -1)}
+                      canEdit={permissions.canScore}
                     />
                     <StatCell
                       value={player.rebounds}
                       onIncrement={() => handleStatChange(player.id, 'rebounds', 1)}
                       onDecrement={() => handleStatChange(player.id, 'rebounds', -1)}
+                      canEdit={permissions.canScore}
                     />
                     <StatCell
                       value={player.steals}
                       onIncrement={() => handleStatChange(player.id, 'steals', 1)}
                       onDecrement={() => handleStatChange(player.id, 'steals', -1)}
+                      canEdit={permissions.canScore}
                     />
                     <StatCell
                       value={player.blocks}
                       onIncrement={() => handleStatChange(player.id, 'blocks', 1)}
                       onDecrement={() => handleStatChange(player.id, 'blocks', -1)}
+                      canEdit={permissions.canScore}
                     />
                     <StatCell
                       value={player.turnovers}
                       onIncrement={() => handleStatChange(player.id, 'turnovers', 1)}
                       onDecrement={() => handleStatChange(player.id, 'turnovers', -1)}
+                      canEdit={permissions.canScore}
                     />
                     <td className="p-2">
-                      <button
-                        onClick={() => removePlayer(currentTeam, player.id)}
-                        className="text-[var(--color-danger)] hover:bg-[var(--color-danger)]/20 rounded p-1"
-                      >
-                        🗑️
-                      </button>
+                      {permissions.canEditPlayers && (
+                        <button
+                          onClick={() => removePlayer(currentTeam, player.id)}
+                          className="text-[var(--color-danger)] hover:bg-[var(--color-danger)]/20 rounded p-1"
+                        >
+                          🗑️
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -486,29 +518,31 @@ export function PlayerStats({ team: initialTeam, onClose }: PlayerStatsProps) {
             </table>
           </div>
 
-          {/* Add player form */}
-          <div className="mt-4 flex gap-2 items-center flex-wrap sm:flex-nowrap">
-            <input
-              type="text"
-              placeholder={t.playerNumber}
-              value={newPlayerNumber}
-              onChange={(e) => setNewPlayerNumber(e.target.value)}
-              className="w-16 sm:w-16 px-2 py-2 sm:py-1 rounded bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] border border-[var(--color-text-secondary)] text-sm"
-            />
-            <input
-              type="text"
-              placeholder={t.playerName}
-              value={newPlayerName}
-              onChange={(e) => setNewPlayerName(e.target.value)}
-              className="flex-1 min-w-0 px-2 py-2 sm:py-1 rounded bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] border border-[var(--color-text-secondary)] text-sm"
-            />
-            <button
-              onClick={handleAddPlayer}
-              className="px-4 py-2 sm:py-1 rounded bg-[var(--color-success)] text-white font-semibold hover:bg-green-600 text-sm whitespace-nowrap"
-            >
-              + {t.players}
-            </button>
-          </div>
+          {/* Add player form - only show if user can edit players */}
+          {permissions.canEditPlayers && (
+            <div className="mt-4 flex gap-2 items-center flex-wrap sm:flex-nowrap">
+              <input
+                type="text"
+                placeholder={t.playerNumber}
+                value={newPlayerNumber}
+                onChange={(e) => setNewPlayerNumber(e.target.value)}
+                className="w-16 sm:w-16 px-2 py-2 sm:py-1 rounded bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] border border-[var(--color-text-secondary)] text-sm"
+              />
+              <input
+                type="text"
+                placeholder={t.playerName}
+                value={newPlayerName}
+                onChange={(e) => setNewPlayerName(e.target.value)}
+                className="flex-1 min-w-0 px-2 py-2 sm:py-1 rounded bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] border border-[var(--color-text-secondary)] text-sm"
+              />
+              <button
+                onClick={handleAddPlayer}
+                className="px-4 py-2 sm:py-1 rounded bg-[var(--color-success)] text-white font-semibold hover:bg-green-600 text-sm whitespace-nowrap"
+              >
+                + {t.players}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -551,25 +585,32 @@ interface StatCellProps {
   value: number;
   onIncrement: () => void;
   onDecrement: () => void;
+  canEdit?: boolean;
 }
 
-function StatCell({ value, onIncrement, onDecrement }: StatCellProps) {
+function StatCell({ value, onIncrement, onDecrement, canEdit = true }: StatCellProps) {
   return (
     <td className="p-2">
       <div className="flex items-center justify-center gap-1">
-        <button
-          onClick={onDecrement}
-          className="w-5 h-5 rounded bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] text-xs hover:bg-slate-600"
-        >
-          -
-        </button>
-        <span className="w-6 text-center">{value}</span>
-        <button
-          onClick={onIncrement}
-          className="w-5 h-5 rounded bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] text-xs hover:bg-slate-600"
-        >
-          +
-        </button>
+        {canEdit ? (
+          <>
+            <button
+              onClick={onDecrement}
+              className="w-5 h-5 rounded bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] text-xs hover:bg-slate-600"
+            >
+              -
+            </button>
+            <span className="w-6 text-center">{value}</span>
+            <button
+              onClick={onIncrement}
+              className="w-5 h-5 rounded bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] text-xs hover:bg-slate-600"
+            >
+              +
+            </button>
+          </>
+        ) : (
+          <span className="w-6 text-center">{value}</span>
+        )}
       </div>
     </td>
   );

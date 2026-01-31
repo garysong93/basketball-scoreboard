@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
-import { useSync } from './useSync';
+import { useGameStore } from '../stores/gameStore';
 import { getPermissions, type RefereeRole, type RefereePermissions } from '../utils/refereeRoles';
 
 export function usePermissions(): RefereePermissions & { role: RefereeRole } {
-  const { syncMode, refereeRole } = useSync();
+  // Get sync state directly from gameStore - this is shared across all components
+  const syncMode = useGameStore((state) => state.syncMode);
+  const refereeRole = useGameStore((state) => state.refereeRole);
 
   const permissions = useMemo(() => {
     // If not syncing, user has full permissions (local mode)

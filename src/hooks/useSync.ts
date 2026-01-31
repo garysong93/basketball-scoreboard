@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { useGameStore } from '../stores/gameStore';
+import { useEffect, useCallback, useRef } from 'react';
+import { useGameStore, type SyncMode, type SyncStatus } from '../stores/gameStore';
 import {
   isFirebaseConfigured,
   createGame,
@@ -10,9 +10,6 @@ import {
 } from '../utils/firebase';
 import type { RefereeRole } from '../utils/refereeRoles';
 
-export type SyncMode = 'local' | 'host' | 'viewer';
-export type SyncStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
-
 interface UseSyncReturn {
   // State
   syncMode: SyncMode;
@@ -21,6 +18,7 @@ interface UseSyncReturn {
   isHost: boolean;
   isViewer: boolean;
   shareUrl: string | null;
+  editShareUrl: string | null;
   isFirebaseEnabled: boolean;
   refereeRole: RefereeRole | null;
 
@@ -52,17 +50,21 @@ export function useSync(): UseSyncReturn {
     possession,
     isRunning,
     rules,
+    gameId,
+    syncMode,
+    syncStatus,
+    refereeRole,
+    setGameId,
+    setSyncMode,
+    setSyncStatus,
+    setRefereeRole,
   } = useGameStore();
-
-  const [syncMode, setSyncMode] = useState<SyncMode>('local');
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>('disconnected');
-  const [gameId, setGameId] = useState<string | null>(null);
-  const [refereeRole, setRefereeRole] = useState<RefereeRole | null>(null);
 
   const hostId = useRef(getHostId());
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const lastUpdateRef = useRef<number>(0);
   const isUpdatingRef = useRef<boolean>(false);
+  const hasJoinedRef = useRef<boolean>(false);
 
   const isFirebaseEnabled = isFirebaseConfigured();
   const isHost = syncMode === 'host';
@@ -70,6 +72,10 @@ export function useSync(): UseSyncReturn {
 
   const shareUrl = gameId
     ? `${window.location.origin}?game=${gameId}`
+    : null;
+
+  const editShareUrl = gameId
+    ? `${window.location.origin}?game=${gameId}&mode=edit`
     : null;
 
   // Sync game state to Firebase (host only)
@@ -125,6 +131,9 @@ export function useSync(): UseSyncReturn {
 
     setSyncStatus('connecting');
 
+    // Get the latest gameId from store directly to avoid stale closure
+    const currentGameId = useGameStore.getState().gameId;
+
     const gameData = {
       hostId: hostId.current,
       home: {
@@ -149,7 +158,8 @@ export function useSync(): UseSyncReturn {
       rules: rules.name,
     };
 
-    const newGameId = await createGame(gameData);
+    // Use stored gameId if available, otherwise create new one
+    const newGameId = await createGame(gameData, currentGameId || undefined);
 
     if (newGameId) {
       setGameId(newGameId);
@@ -160,7 +170,7 @@ export function useSync(): UseSyncReturn {
       setSyncStatus('error');
       return null;
     }
-  }, [isFirebaseEnabled, home, away, gameTime, shotClock, period, possession, isRunning, rules]);
+  }, [isFirebaseEnabled, home, away, gameTime, shotClock, period, possession, isRunning, rules, setGameId, setSyncMode, setSyncStatus]);
 
   // Join an existing game as viewer or with a specific role
   const joinGame = useCallback(async (joinGameId: string, role: RefereeRole = 'viewer'): Promise<boolean> => {
@@ -192,10 +202,6 @@ export function useSync(): UseSyncReturn {
         store.setTeamName('away', data.away.name);
         store.setTeamColor('away', data.away.color);
 
-        // Update scores (by setting directly)
-        // We need to add a method to set score directly
-        // For now, we'll use a workaround
-
         // This is a simplified sync - in production you'd want more granular control
         useGameStore.setState({
           home: { ...store.home, ...data.home, players: store.home.players },
@@ -220,7 +226,7 @@ export function useSync(): UseSyncReturn {
     setSyncMode('viewer');
 
     return true;
-  }, [isFirebaseEnabled]);
+  }, [isFirebaseEnabled, setGameId, setRefereeRole, setSyncMode, setSyncStatus]);
 
   // Stop syncing
   const stopSync = useCallback(() => {
@@ -231,9 +237,9 @@ export function useSync(): UseSyncReturn {
 
     setSyncMode('local');
     setSyncStatus('disconnected');
-    setGameId(null);
+    // Don't clear gameId - keep it for next hosting session
     setRefereeRole(null);
-  }, []);
+  }, [setSyncMode, setSyncStatus, setRefereeRole]);
 
   // Copy share link to clipboard
   const copyShareLink = useCallback(() => {
@@ -244,13 +250,19 @@ export function useSync(): UseSyncReturn {
 
   // Check URL for game ID on mount
   useEffect(() => {
+    // Only run once
+    if (hasJoinedRef.current) return;
+
     const params = new URLSearchParams(window.location.search);
     const urlGameId = params.get('game');
+    const editMode = params.get('mode') === 'edit';
 
     if (urlGameId && isFirebaseEnabled) {
-      joinGame(urlGameId);
+      hasJoinedRef.current = true;
+      // Use main_referee role for edit mode (has edit permissions), viewer for read-only
+      joinGame(urlGameId, editMode ? 'main_referee' : 'viewer');
     }
-  }, [isFirebaseEnabled]);
+  }, [isFirebaseEnabled, joinGame]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -268,6 +280,7 @@ export function useSync(): UseSyncReturn {
     isHost,
     isViewer,
     shareUrl,
+    editShareUrl,
     isFirebaseEnabled,
     refereeRole,
     startHosting,

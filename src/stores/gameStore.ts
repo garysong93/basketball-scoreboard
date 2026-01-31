@@ -2,6 +2,10 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { RULE_PRESETS, type GameRules, type RuleSet } from '../utils/rules';
 import type { Language } from '../i18n';
+import type { RefereeRole } from '../utils/refereeRoles';
+
+export type SyncMode = 'local' | 'host' | 'viewer';
+export type SyncStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
 export type Team = 'home' | 'away';
 
@@ -68,6 +72,12 @@ export interface GameState {
   showPlayerStats: boolean;
   selectedTeam: Team | null;
   animatingScore: Team | null;
+
+  // Sync state
+  gameId: string | null;
+  syncMode: SyncMode;
+  syncStatus: SyncStatus;
+  refereeRole: RefereeRole | null;
 }
 
 interface GameActions {
@@ -124,6 +134,12 @@ interface GameActions {
   setSelectedTeam: (team: Team | null) => void;
   clearAnimatingScore: () => void;
 
+  // Sync actions
+  setGameId: (gameId: string | null) => void;
+  setSyncMode: (mode: SyncMode) => void;
+  setSyncStatus: (status: SyncStatus) => void;
+  setRefereeRole: (role: RefereeRole | null) => void;
+
   // History actions
   undo: () => void;
   redo: () => void;
@@ -179,6 +195,10 @@ const initialState: GameState = {
   showPlayerStats: false,
   selectedTeam: null,
   animatingScore: null,
+  gameId: null,
+  syncMode: 'local',
+  syncStatus: 'disconnected',
+  refereeRole: null,
 };
 
 // History management
@@ -603,6 +623,10 @@ export const useGameStore = create<GameState & GameActions>()(
             ...createInitialTeamState(state.away.name, state.away.color),
             players: createDefaultPlayers(),
           },
+          gameId: null, // Clear gameId for new game
+          syncMode: 'local',
+          syncStatus: 'disconnected',
+          refereeRole: null,
         });
       },
 
@@ -618,6 +642,12 @@ export const useGameStore = create<GameState & GameActions>()(
       setSelectedTeam: (team) => set({ selectedTeam: team }),
 
       clearAnimatingScore: () => set({ animatingScore: null }),
+
+      // Sync actions
+      setGameId: (gameId) => set({ gameId }),
+      setSyncMode: (syncMode) => set({ syncMode }),
+      setSyncStatus: (syncStatus) => set({ syncStatus }),
+      setRefereeRole: (refereeRole) => set({ refereeRole }),
 
       // History actions
       undo: () => {
@@ -654,6 +684,7 @@ export const useGameStore = create<GameState & GameActions>()(
         shotClock: state.shotClock,
         period: state.period,
         events: state.events,
+        gameId: state.gameId,
       }),
     }
   )
