@@ -15,9 +15,12 @@ import { useKeyboard } from '../hooks/useKeyboard';
 import { useSync } from '../hooks/useSync';
 
 export function Scoreboard() {
-  const { language, theme, selectedTeam, setSelectedTeam, isFullscreen, setFullscreen } = useGameStore();
+  const { language, theme, selectedTeam, setSelectedTeam, isFullscreen, setFullscreen, newGame } = useGameStore();
   const t = translations[language];
   const { isHost, isViewer, gameId } = useSync();
+
+  // Check if Firebase is configured for Share functionality
+  const isFirebaseConfigured = !!import.meta.env.VITE_FIREBASE_API_KEY;
 
   const [showSettings, setShowSettings] = useState(false);
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
@@ -59,6 +62,12 @@ export function Scoreboard() {
   };
 
   const syncIndicator = getSyncIndicator();
+
+  const handleNewGame = () => {
+    if (window.confirm(t.confirmNewGame)) {
+      newGame();
+    }
+  };
 
   return (
     <div className={`scoreboard-container h-full flex flex-col ${theme === 'light' ? 'light' : ''}`}>
@@ -126,6 +135,17 @@ export function Scoreboard() {
           </button>
         )}
 
+        {/* New Game - Reset all data */}
+        {!isViewer && (
+          <button
+            onClick={handleNewGame}
+            className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base bg-red-600 text-white hover:bg-red-700 transition-colors"
+            title={language === 'en' ? 'Start a new game (reset all data)' : '开始新比赛（重置所有数据）'}
+          >
+            🔄 <span className="hidden sm:inline">{t.newGame}</span>
+          </button>
+        )}
+
         {/* Player Stats - Most used during game */}
         {!isViewer && (
           <button
@@ -155,20 +175,22 @@ export function Scoreboard() {
           {isFullscreen ? '⛶' : '⛶'} <span className="hidden md:inline">{isFullscreen ? t.exitFullscreen : t.fullscreen}</span>
         </button>
 
-        {/* Share - Real-time sync (visible on mobile too due to importance) */}
-        <button
-          onClick={() => setShowShare(true)}
-          className={`flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base font-medium transition-colors ${
-            isHost
-              ? 'bg-[var(--color-success)] text-white'
-              : isViewer
-              ? 'bg-[var(--color-accent)] text-white'
-              : 'bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700'
-          }`}
-          title={language === 'en' ? 'Share with other devices (real-time sync)' : '分享到其他设备（实时同步）'}
-        >
-          🔗 <span className="hidden md:inline">{language === 'en' ? 'Share' : '分享'}</span>
-        </button>
+        {/* Share - Real-time sync (only show if Firebase is configured) */}
+        {isFirebaseConfigured && (
+          <button
+            onClick={() => setShowShare(true)}
+            className={`flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base font-medium transition-colors ${
+              isHost
+                ? 'bg-[var(--color-success)] text-white'
+                : isViewer
+                ? 'bg-[var(--color-accent)] text-white'
+                : 'bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700'
+            }`}
+            title={language === 'en' ? 'Share with other devices (real-time sync)' : '分享到其他设备（实时同步）'}
+          >
+            🔗 <span className="hidden md:inline">{language === 'en' ? 'Share' : '分享'}</span>
+          </button>
+        )}
 
         {/* AI Assistant button (mobile only) */}
         <button
