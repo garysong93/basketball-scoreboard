@@ -63,6 +63,14 @@ export function KeyboardHelp({ onClose }: KeyboardHelpProps) {
 
         {/* Shortcuts list */}
         <div className="flex-1 overflow-auto p-3 sm:p-4">
+          {/* Desktop-only notice */}
+          <div className="mb-4 p-3 rounded-lg bg-[var(--color-accent)]/20 text-[var(--color-accent)] text-sm">
+            {language === 'en'
+              ? '💻 Keyboard shortcuts are for desktop/PC only. Not available on mobile devices.'
+              : '💻 键盘快捷键仅适用于电脑桌面端，手机设备不支持。'
+            }
+          </div>
+
           <div className="space-y-2">
             {SHORTCUTS.map(({ key, description }) => (
               <div

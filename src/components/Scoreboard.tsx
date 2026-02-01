@@ -24,6 +24,10 @@ export function Scoreboard() {
   // Check if Firebase is configured for Share functionality
   const isFirebaseConfigured = !!import.meta.env.VITE_FIREBASE_API_KEY;
 
+  // Check if Fullscreen API is supported (iOS Safari doesn't support it)
+  const isFullscreenSupported = document.fullscreenEnabled ||
+    (document as any).webkitFullscreenEnabled;
+
   const [showSettings, setShowSettings] = useState(false);
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   const [showVoiceHelp, setShowVoiceHelp] = useState(false);
@@ -225,13 +229,15 @@ export function Scoreboard() {
                 >
                   📋 {language === 'en' ? 'Timeline' : '时间线'}
                 </button>
-                {/* Fullscreen */}
-                <button
-                  onClick={() => { toggleFullscreen(); setShowMoreMenu(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 min-h-[48px] text-sm text-left text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)] transition-colors"
-                >
-                  ⛶ {isFullscreen ? t.exitFullscreen : t.fullscreen}
-                </button>
+                {/* Fullscreen - only show if supported */}
+                {isFullscreenSupported && (
+                  <button
+                    onClick={() => { toggleFullscreen(); setShowMoreMenu(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 min-h-[48px] text-sm text-left text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)] transition-colors"
+                  >
+                    ⛶ {isFullscreen ? t.exitFullscreen : t.fullscreen}
+                  </button>
+                )}
                 {/* Export */}
                 <button
                   onClick={() => { setShowReport(true); setShowMoreMenu(false); }}
@@ -314,14 +320,16 @@ export function Scoreboard() {
           📋 <span className="hidden lg:inline">{language === 'en' ? 'Timeline' : '时间线'}</span>
         </button>
 
-        {/* Fullscreen */}
-        <button
-          onClick={toggleFullscreen}
-          className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg text-sm sm:text-base bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors"
-          title={language === 'en' ? 'Toggle fullscreen mode' : '切换全屏模式'}
-        >
-          ⛶ <span className="hidden lg:inline">{isFullscreen ? t.exitFullscreen : t.fullscreen}</span>
-        </button>
+        {/* Fullscreen - only show if supported */}
+        {isFullscreenSupported && (
+          <button
+            onClick={toggleFullscreen}
+            className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg text-sm sm:text-base bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors"
+            title={language === 'en' ? 'Toggle fullscreen mode' : '切换全屏模式'}
+          >
+            ⛶ <span className="hidden lg:inline">{isFullscreen ? t.exitFullscreen : t.fullscreen}</span>
+          </button>
+        )}
 
         {/* Share */}
         {isFirebaseConfigured && (

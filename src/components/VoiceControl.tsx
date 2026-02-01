@@ -62,6 +62,7 @@ interface VoiceHelpProps {
 
 export function VoiceHelp({ onClose }: VoiceHelpProps) {
   const { language } = useGameStore();
+  const { isListening, isSupported, toggleListening, lastCommand, error } = useVoiceControl();
 
   const commands = {
     en: [
@@ -127,17 +128,54 @@ export function VoiceHelp({ onClose }: VoiceHelpProps) {
         </div>
 
         {/* Header */}
-        <div className="p-3 sm:p-4 flex justify-between items-center bg-[var(--color-bg-secondary)]">
+        <div className="p-3 sm:p-4 flex justify-between items-center gap-3 bg-[var(--color-bg-secondary)]">
           <h2 className="text-lg sm:text-xl font-bold text-[var(--color-text-primary)]">
             🎤 {language === 'en' ? 'Voice Commands' : '语音命令'}
           </h2>
-          <button
-            onClick={onClose}
-            className="text-[var(--color-text-primary)] hover:bg-white/10 rounded-full w-8 h-8 flex items-center justify-center transition-colors"
-          >
-            ✕
-          </button>
+
+          {/* Voice control button */}
+          <div className="flex items-center gap-2">
+            {isSupported ? (
+              <button
+                onClick={toggleListening}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium text-sm transition-all ${
+                  isListening
+                    ? 'bg-[var(--color-danger)] text-white animate-pulse'
+                    : 'bg-[var(--color-success)] text-white hover:bg-green-600'
+                }`}
+              >
+                <span>{isListening ? '🔴' : '▶️'}</span>
+                <span>
+                  {isListening
+                    ? (language === 'en' ? 'Stop' : '停止')
+                    : (language === 'en' ? 'Start' : '开始')
+                  }
+                </span>
+              </button>
+            ) : (
+              <span className="text-yellow-500 text-sm px-2">
+                {language === 'en' ? '⚠️ Not supported' : '⚠️ 浏览器不支持'}
+              </span>
+            )}
+            <button
+              onClick={onClose}
+              className="text-[var(--color-text-primary)] hover:bg-white/10 rounded-full w-8 h-8 flex items-center justify-center transition-colors"
+            >
+              ✕
+            </button>
+          </div>
         </div>
+
+        {/* Status feedback */}
+        {isSupported && (lastCommand || error) && (
+          <div className={`mx-3 sm:mx-4 mt-3 px-3 py-2 rounded-lg text-sm font-medium ${
+            error
+              ? 'bg-[var(--color-danger)]/20 text-[var(--color-danger)]'
+              : 'bg-[var(--color-success)]/20 text-[var(--color-success)]'
+          }`}>
+            {error || (language === 'en' ? `✓ ${lastCommand}` : `✓ ${lastCommand}`)}
+          </div>
+        )}
 
         {/* Commands list */}
         <div className="flex-1 overflow-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
@@ -163,6 +201,14 @@ export function VoiceHelp({ onClose }: VoiceHelpProps) {
             {language === 'en'
               ? '💡 Tip: Speak clearly and wait for the feedback before the next command.'
               : '💡 提示：请清晰地说出命令，等待反馈后再说下一条命令。'
+            }
+          </div>
+
+          {/* Browser support note */}
+          <div className="mt-3 p-3 rounded-lg bg-[var(--color-accent)]/20 text-[var(--color-accent)] text-sm">
+            {language === 'en'
+              ? '💻 Voice control requires browser support and microphone permission. Works best on Chrome desktop.'
+              : '💻 语音控制需要浏览器支持和麦克风权限，在电脑端 Chrome 浏览器效果最佳。'
             }
           </div>
         </div>
