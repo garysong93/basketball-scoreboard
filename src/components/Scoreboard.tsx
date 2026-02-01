@@ -11,6 +11,7 @@ import { GameTimeline } from './GameTimeline';
 import { SharePanel } from './SharePanel';
 import { GameAssistant, GameAssistantInline, GameAssistantMobile } from './GameAssistant';
 import { ReportPanel } from './ReportPanel';
+import { BasketballDecoration } from './BasketballDecoration';
 import { useKeyboard } from '../hooks/useKeyboard';
 import { useSync } from '../hooks/useSync';
 import { useOrientation } from '../hooks/useOrientation';
@@ -405,6 +406,9 @@ export function Scoreboard() {
           </div>
         )}
       </div>
+
+      {/* Basketball court decoration */}
+      <BasketballDecoration />
 
       {/* Modals */}
       {selectedTeam && !isViewer && (
