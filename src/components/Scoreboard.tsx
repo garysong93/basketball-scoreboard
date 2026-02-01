@@ -13,11 +13,13 @@ import { GameAssistant, GameAssistantInline, GameAssistantMobile } from './GameA
 import { ReportPanel } from './ReportPanel';
 import { useKeyboard } from '../hooks/useKeyboard';
 import { useSync } from '../hooks/useSync';
+import { useOrientation } from '../hooks/useOrientation';
 
 export function Scoreboard() {
   const { language, theme, selectedTeam, setSelectedTeam, isFullscreen, setFullscreen, newGame } = useGameStore();
   const t = translations[language];
   const { isHost, isViewer, gameId } = useSync();
+  const { isPortrait } = useOrientation();
 
   // Check if Firebase is configured for Share functionality
   const isFirebaseConfigured = !!import.meta.env.VITE_FIREBASE_API_KEY;
@@ -97,23 +99,44 @@ export function Scoreboard() {
       {/* Main scoreboard area with sidebar */}
       <div className="flex-1 flex p-2 sm:p-3 md:p-4 gap-2 sm:gap-3 md:gap-4 overflow-hidden">
         {/* Scoreboard content - takes available space */}
-        <div className="flex-1 flex items-center justify-center min-w-0">
-          <div className="flex items-center gap-2 sm:gap-4 md:gap-8 lg:gap-12 w-full max-w-5xl">
-            {/* Home team */}
-            <div className="flex-1 min-w-0">
-              <TeamScore team="home" />
-            </div>
+        <div className="flex-1 flex items-center justify-center min-w-0 overflow-y-auto">
+          {isPortrait ? (
+            /* Portrait layout: Timer -> Home -> Away (vertical stack) */
+            <div className="flex flex-col gap-3 w-full max-w-md px-2">
+              {/* Timer at top */}
+              <div className="flex-shrink-0">
+                <Timer />
+              </div>
 
-            {/* Center - Timer and period */}
-            <div className="flex-shrink-0">
-              <Timer />
-            </div>
+              {/* Home team */}
+              <div className="flex-shrink-0">
+                <TeamScore team="home" isPortrait={true} />
+              </div>
 
-            {/* Away team */}
-            <div className="flex-1 min-w-0">
-              <TeamScore team="away" />
+              {/* Away team */}
+              <div className="flex-shrink-0">
+                <TeamScore team="away" isPortrait={true} />
+              </div>
             </div>
-          </div>
+          ) : (
+            /* Landscape layout: Home | Timer | Away (horizontal) */
+            <div className="flex items-center gap-2 sm:gap-4 md:gap-8 lg:gap-12 w-full max-w-5xl">
+              {/* Home team */}
+              <div className="flex-1 min-w-0">
+                <TeamScore team="home" />
+              </div>
+
+              {/* Center - Timer and period */}
+              <div className="flex-shrink-0">
+                <Timer />
+              </div>
+
+              {/* Away team */}
+              <div className="flex-1 min-w-0">
+                <TeamScore team="away" />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* AI Assistant sidebar - fixed width on right (desktop only) */}

@@ -8,9 +8,10 @@ import type { Team } from '../stores/gameStore';
 
 interface TeamScoreProps {
   team: Team;
+  isPortrait?: boolean;
 }
 
-export function TeamScore({ team }: TeamScoreProps) {
+export function TeamScore({ team, isPortrait = false }: TeamScoreProps) {
   const {
     home,
     away,
@@ -34,6 +35,9 @@ export function TeamScore({ team }: TeamScoreProps) {
 
   // Mobile expanded state for secondary actions (Foul/Timeout/Possession)
   const [showMore, setShowMore] = useState(false);
+
+  // Portrait mode: show score add menu on score click
+  const [showScoreMenu, setShowScoreMenu] = useState(false);
 
   // Check if any secondary action is available
   const hasSecondaryActions = permissions.canFoul || permissions.canTimeout || permissions.canPossession;
@@ -63,20 +67,70 @@ export function TeamScore({ team }: TeamScoreProps) {
         {teamState.name}
       </div>
 
-      {/* Score - clickable to open player stats */}
-      <button
-        className={`text-5xl sm:text-6xl md:text-7xl lg:text-9xl font-bold my-2 sm:my-3 md:my-4 transition-transform cursor-pointer hover:opacity-80 bg-transparent border-none ${
-          isAnimating ? 'score-animate' : ''
-        }`}
-        style={{ color: teamState.color }}
-        onClick={() => setSelectedTeam(team)}
-        title={language === 'en' ? 'View player stats' : '查看球员数据'}
-      >
-        {teamState.score}
-      </button>
+      {/* Score - Portrait: click to show add menu; Others: open player stats */}
+      <div className="relative">
+        <button
+          className={`text-5xl sm:text-6xl md:text-7xl lg:text-9xl font-bold my-2 sm:my-3 md:my-4 transition-transform cursor-pointer hover:opacity-80 bg-transparent border-none ${
+            isAnimating ? 'score-animate' : ''
+          }`}
+          style={{ color: teamState.color }}
+          onClick={() => {
+            if (isPortrait && permissions.canScore) {
+              setShowScoreMenu(!showScoreMenu);
+            } else {
+              setSelectedTeam(team);
+            }
+          }}
+          title={isPortrait ? (language === 'en' ? 'Tap to add points' : '点击加分') : (language === 'en' ? 'View player stats' : '查看球员数据')}
+        >
+          {teamState.score}
+        </button>
 
-      {/* Mobile: Score buttons - always visible */}
-      {permissions.canScore && (
+        {/* Portrait: Score add popup menu */}
+        {isPortrait && showScoreMenu && permissions.canScore && (
+          <>
+            {/* Backdrop to close menu */}
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => setShowScoreMenu(false)}
+            />
+            {/* Add score menu */}
+            <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 flex gap-2 bg-black/90 p-2 rounded-lg z-50 shadow-xl">
+              <button
+                onClick={() => { addScore(team, 1); setShowScoreMenu(false); }}
+                className="min-w-[48px] min-h-[48px] rounded-lg text-lg font-bold bg-[var(--color-success)] text-white hover:bg-green-600 btn-press transition-colors"
+              >
+                +1
+              </button>
+              <button
+                onClick={() => { addScore(team, 2); setShowScoreMenu(false); }}
+                className="min-w-[48px] min-h-[48px] rounded-lg text-lg font-bold bg-[var(--color-success)] text-white hover:bg-green-600 btn-press transition-colors"
+              >
+                +2
+              </button>
+              <button
+                onClick={() => { addScore(team, 3); setShowScoreMenu(false); }}
+                className="min-w-[48px] min-h-[48px] rounded-lg text-lg font-bold bg-[var(--color-success)] text-white hover:bg-green-600 btn-press transition-colors"
+              >
+                +3
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Portrait: Minus button for subtracting score */}
+      {isPortrait && permissions.canScore && (
+        <button
+          onClick={() => addScore(team, -1)}
+          className="min-h-[48px] px-8 rounded-lg text-xl font-bold bg-gray-600 text-white hover:bg-gray-700 btn-press transition-colors mb-2"
+        >
+          −
+        </button>
+      )}
+
+      {/* Mobile landscape: Score buttons - always visible */}
+      {!isPortrait && permissions.canScore && (
         <div className="md:hidden grid grid-cols-3 gap-2 w-full mb-2">
           <button
             onClick={() => addScore(team, 1)}
@@ -99,18 +153,32 @@ export function TeamScore({ team }: TeamScoreProps) {
         </div>
       )}
 
-      {/* Mobile: Compact fouls/timeouts display */}
-      <div className="md:hidden flex justify-center gap-4 text-sm text-[var(--color-text-secondary)] mb-2">
-        <span className={teamState.fouls >= rules.bonusFouls ? 'text-[var(--color-warning)]' : ''}>
-          F {teamState.fouls}/{rules.bonusFouls}
-        </span>
-        <span className={timeoutsRemaining === 0 ? 'text-[var(--color-danger)]' : ''}>
-          TO {timeoutsRemaining}/{maxTimeouts}
-        </span>
-      </div>
+      {/* Portrait: Compact fouls/timeouts display */}
+      {isPortrait && (
+        <div className="flex justify-center gap-4 text-sm text-[var(--color-text-secondary)]">
+          <span className={teamState.fouls >= rules.bonusFouls ? 'text-[var(--color-warning)]' : ''}>
+            F {teamState.fouls}/{rules.bonusFouls}
+          </span>
+          <span className={timeoutsRemaining === 0 ? 'text-[var(--color-danger)]' : ''}>
+            TO {timeoutsRemaining}/{maxTimeouts}
+          </span>
+        </div>
+      )}
 
-      {/* Mobile: More button for secondary actions */}
-      {hasSecondaryActions && (
+      {/* Mobile landscape: Compact fouls/timeouts display */}
+      {!isPortrait && (
+        <div className="md:hidden flex justify-center gap-4 text-sm text-[var(--color-text-secondary)] mb-2">
+          <span className={teamState.fouls >= rules.bonusFouls ? 'text-[var(--color-warning)]' : ''}>
+            F {teamState.fouls}/{rules.bonusFouls}
+          </span>
+          <span className={timeoutsRemaining === 0 ? 'text-[var(--color-danger)]' : ''}>
+            TO {timeoutsRemaining}/{maxTimeouts}
+          </span>
+        </div>
+      )}
+
+      {/* Mobile landscape: More button for secondary actions */}
+      {!isPortrait && hasSecondaryActions && (
         <div className="md:hidden w-full">
           <button
             onClick={() => setShowMore(!showMore)}
