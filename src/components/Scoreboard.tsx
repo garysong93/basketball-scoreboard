@@ -225,15 +225,6 @@ export function Scoreboard() {
                     📺 {t.copyObsLink}
                   </button>
                 )}
-                {/* Keyboard Shortcuts */}
-                {!isViewer && (
-                  <button
-                    onClick={() => { setShowKeyboardHelp(true); setShowMoreMenu(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-3 min-h-[48px] text-sm text-left text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)] transition-colors"
-                  >
-                    ⌨️ {t.keyboard}
-                  </button>
-                )}
                 {/* Voice Commands */}
                 {!isViewer && (
                   <button

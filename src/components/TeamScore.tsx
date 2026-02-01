@@ -17,6 +17,7 @@ export function TeamScore({ team }: TeamScoreProps) {
     possession,
     animatingScore,
     language,
+    rules,
     addScore,
     addFoul,
     callTimeout,
@@ -31,11 +32,16 @@ export function TeamScore({ team }: TeamScoreProps) {
   const isAnimating = animatingScore === team;
   const isHome = team === 'home';
 
-  // Mobile expanded state for action panel
-  const [isExpanded, setIsExpanded] = useState(false);
+  // Mobile expanded state for secondary actions (Foul/Timeout/Possession)
+  const [showMore, setShowMore] = useState(false);
 
-  // Check if any action is available
-  const hasAnyAction = permissions.canScore || permissions.canFoul || permissions.canTimeout || permissions.canPossession;
+  // Check if any secondary action is available
+  const hasSecondaryActions = permissions.canFoul || permissions.canTimeout || permissions.canPossession;
+
+  // Calculate timeouts remaining for mobile display
+  const timeoutsUsed = teamState.timeouts;
+  const maxTimeouts = rules.maxTimeoutsPerHalf;
+  const timeoutsRemaining = maxTimeouts - timeoutsUsed;
 
   return (
     <div
@@ -57,35 +63,95 @@ export function TeamScore({ team }: TeamScoreProps) {
         {teamState.name}
       </div>
 
-      {/* Score - clickable to expand actions on mobile, open player stats on desktop */}
+      {/* Score - clickable to open player stats */}
       <button
         className={`text-5xl sm:text-6xl md:text-7xl lg:text-9xl font-bold my-2 sm:my-3 md:my-4 transition-transform cursor-pointer hover:opacity-80 bg-transparent border-none ${
           isAnimating ? 'score-animate' : ''
         }`}
         style={{ color: teamState.color }}
-        onClick={() => {
-          // On mobile, toggle expanded panel; on desktop, open player stats
-          if (window.innerWidth < 768 && hasAnyAction) {
-            setIsExpanded(!isExpanded);
-          } else {
-            setSelectedTeam(team);
-          }
-        }}
-        title={language === 'en' ? 'Tap for actions' : '点击操作'}
+        onClick={() => setSelectedTeam(team)}
+        title={language === 'en' ? 'View player stats' : '查看球员数据'}
       >
         {teamState.score}
       </button>
 
-      {/* Mobile: Tap hint */}
-      {hasAnyAction && (
-        <div
-          className="md:hidden text-xs text-[var(--color-text-secondary)] mb-2 cursor-pointer"
-          onClick={() => setIsExpanded(!isExpanded)}
-        >
-          {isExpanded
-            ? (language === 'en' ? '▲ tap to close' : '▲ 点击收起')
-            : (language === 'en' ? '▼ tap for actions' : '▼ 点击操作')
-          }
+      {/* Mobile: Score buttons - always visible */}
+      {permissions.canScore && (
+        <div className="md:hidden grid grid-cols-3 gap-2 w-full mb-2">
+          <button
+            onClick={() => addScore(team, 1)}
+            className="min-h-[44px] rounded-lg text-lg font-bold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
+          >
+            +1
+          </button>
+          <button
+            onClick={() => addScore(team, 2)}
+            className="min-h-[44px] rounded-lg text-lg font-bold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
+          >
+            +2
+          </button>
+          <button
+            onClick={() => addScore(team, 3)}
+            className="min-h-[44px] rounded-lg text-lg font-bold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
+          >
+            +3
+          </button>
+        </div>
+      )}
+
+      {/* Mobile: Compact fouls/timeouts display */}
+      <div className="md:hidden flex justify-center gap-4 text-sm text-[var(--color-text-secondary)] mb-2">
+        <span className={teamState.fouls >= rules.bonusFouls ? 'text-[var(--color-warning)]' : ''}>
+          F {teamState.fouls}/{rules.bonusFouls}
+        </span>
+        <span className={timeoutsRemaining === 0 ? 'text-[var(--color-danger)]' : ''}>
+          TO {timeoutsRemaining}/{maxTimeouts}
+        </span>
+      </div>
+
+      {/* Mobile: More button for secondary actions */}
+      {hasSecondaryActions && (
+        <div className="md:hidden w-full">
+          <button
+            onClick={() => setShowMore(!showMore)}
+            className="w-full py-1 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+          >
+            {showMore ? '▲' : '⋯'}
+          </button>
+
+          {/* Secondary actions panel */}
+          {showMore && (
+            <div className="grid grid-cols-3 gap-2 mt-1 animate-fade-in">
+              {permissions.canFoul && (
+                <button
+                  onClick={() => addFoul(team)}
+                  className="min-h-[40px] rounded-lg text-sm font-semibold bg-[var(--color-warning)] text-black hover:bg-yellow-500 btn-press transition-colors"
+                >
+                  +Foul
+                </button>
+              )}
+              {permissions.canTimeout && (
+                <button
+                  onClick={() => callTimeout(team)}
+                  className="min-h-[40px] rounded-lg text-sm font-semibold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
+                >
+                  TO
+                </button>
+              )}
+              {permissions.canPossession && (
+                <button
+                  onClick={() => setPossession(team)}
+                  className={`min-h-[40px] rounded-lg text-sm font-semibold btn-press transition-colors ${
+                    hasPossession
+                      ? 'bg-[var(--color-accent)] text-white'
+                      : 'bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600'
+                  }`}
+                >
+                  ◄►
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -99,77 +165,8 @@ export function TeamScore({ team }: TeamScoreProps) {
         </button>
       )}
 
-      {/* Mobile: Expanded action panel */}
-      {isExpanded && (
-        <div className="md:hidden w-full animate-fade-in mb-3">
-          {/* Score buttons */}
-          {permissions.canScore && (
-            <div className="grid grid-cols-3 gap-2 mb-3">
-              <button
-                onClick={() => addScore(team, 1)}
-                className="min-h-[48px] rounded-lg text-lg font-bold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
-              >
-                +1
-              </button>
-              <button
-                onClick={() => addScore(team, 2)}
-                className="min-h-[48px] rounded-lg text-lg font-bold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
-              >
-                +2
-              </button>
-              <button
-                onClick={() => addScore(team, 3)}
-                className="min-h-[48px] rounded-lg text-lg font-bold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
-              >
-                +3
-              </button>
-            </div>
-          )}
-
-          {/* Action buttons row */}
-          <div className="grid grid-cols-3 gap-2">
-            {permissions.canFoul && (
-              <button
-                onClick={() => addFoul(team)}
-                className="min-h-[48px] rounded-lg text-sm font-semibold bg-[var(--color-warning)] text-black hover:bg-yellow-500 btn-press transition-colors"
-              >
-                +Foul
-              </button>
-            )}
-            {permissions.canTimeout && (
-              <button
-                onClick={() => callTimeout(team)}
-                className="min-h-[48px] rounded-lg text-sm font-semibold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
-              >
-                Timeout
-              </button>
-            )}
-            {permissions.canPossession && (
-              <button
-                onClick={() => setPossession(team)}
-                className={`min-h-[48px] rounded-lg text-sm font-semibold btn-press transition-colors ${
-                  hasPossession
-                    ? 'bg-[var(--color-accent)] text-white'
-                    : 'bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600'
-                }`}
-              >
-                ◄►
-              </button>
-            )}
-          </div>
-
-          {/* Player stats link */}
-          <button
-            onClick={() => setSelectedTeam(team)}
-            className="w-full mt-3 min-h-[48px] rounded-lg text-sm font-medium bg-[var(--color-success)] text-white hover:bg-green-600 btn-press transition-colors flex items-center justify-center gap-2"
-          >
-            📊 {language === 'en' ? 'Player Stats' : '球员数据'}
-          </button>
-        </div>
-      )}
-
-      {/* Fouls and Timeouts row */}
-      <div className="flex gap-3 sm:gap-4 md:gap-6 items-center">
+      {/* Desktop: Fouls and Timeouts row */}
+      <div className="hidden md:flex gap-3 sm:gap-4 md:gap-6 items-center">
         <FoulIndicator team={team} />
         <TimeoutIndicator team={team} />
       </div>
