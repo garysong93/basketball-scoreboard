@@ -36,9 +36,6 @@ export function TeamScore({ team, isPortrait = false }: TeamScoreProps) {
   // Mobile expanded state for secondary actions (Foul/Timeout/Possession)
   const [showMore, setShowMore] = useState(false);
 
-  // Portrait mode: show score add menu on score click
-  const [showScoreMenu, setShowScoreMenu] = useState(false);
-
   // Check if any secondary action is available
   const hasSecondaryActions = permissions.canFoul || permissions.canTimeout || permissions.canPossession;
 
@@ -67,66 +64,34 @@ export function TeamScore({ team, isPortrait = false }: TeamScoreProps) {
         {teamState.name}
       </div>
 
-      {/* Score - Portrait: click to show add menu; Others: open player stats */}
-      <div className="relative">
-        <button
-          className={`text-5xl sm:text-6xl md:text-7xl lg:text-9xl font-bold my-2 sm:my-3 md:my-4 transition-transform cursor-pointer hover:opacity-80 bg-transparent border-none ${
-            isAnimating ? 'score-animate' : ''
-          }`}
-          style={{ color: teamState.color }}
-          onClick={() => {
-            if (isPortrait && permissions.canScore) {
-              setShowScoreMenu(!showScoreMenu);
-            } else {
-              setSelectedTeam(team);
-            }
-          }}
-          title={isPortrait ? (language === 'en' ? 'Tap to add points' : '点击加分') : (language === 'en' ? 'View player stats' : '查看球员数据')}
-        >
-          {teamState.score}
-        </button>
-
-        {/* Portrait: Score add popup menu */}
-        {isPortrait && showScoreMenu && permissions.canScore && (
-          <>
-            {/* Backdrop to close menu */}
-            <div
-              className="fixed inset-0 z-40"
-              onClick={() => setShowScoreMenu(false)}
-            />
-            {/* Add score menu */}
-            <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 flex gap-2 bg-black/90 p-2 rounded-lg z-50 shadow-xl">
-              <button
-                onClick={() => { addScore(team, 1); setShowScoreMenu(false); }}
-                className="min-w-[48px] min-h-[48px] rounded-lg text-lg font-bold bg-[var(--color-success)] text-white hover:bg-green-600 btn-press transition-colors"
-              >
-                +1
-              </button>
-              <button
-                onClick={() => { addScore(team, 2); setShowScoreMenu(false); }}
-                className="min-w-[48px] min-h-[48px] rounded-lg text-lg font-bold bg-[var(--color-success)] text-white hover:bg-green-600 btn-press transition-colors"
-              >
-                +2
-              </button>
-              <button
-                onClick={() => { addScore(team, 3); setShowScoreMenu(false); }}
-                className="min-w-[48px] min-h-[48px] rounded-lg text-lg font-bold bg-[var(--color-success)] text-white hover:bg-green-600 btn-press transition-colors"
-              >
-                +3
-              </button>
-            </div>
-          </>
-        )}
+      {/* Score display - Portrait: display only; Others: click to open player stats */}
+      <div
+        className={`text-5xl sm:text-6xl md:text-7xl lg:text-9xl font-bold my-2 sm:my-3 md:my-4 transition-transform ${
+          isAnimating ? 'score-animate' : ''
+        } ${!isPortrait ? 'cursor-pointer hover:opacity-80' : ''}`}
+        style={{ color: teamState.color }}
+        onClick={() => !isPortrait && setSelectedTeam(team)}
+        title={!isPortrait ? (language === 'en' ? 'View player stats' : '查看球员数据') : undefined}
+      >
+        {teamState.score}
       </div>
 
-      {/* Portrait: Minus button for subtracting score */}
+      {/* Portrait: Plus and Minus buttons */}
       {isPortrait && permissions.canScore && (
-        <button
-          onClick={() => addScore(team, -1)}
-          className="min-h-[48px] px-8 rounded-lg text-xl font-bold bg-gray-600 text-white hover:bg-gray-700 btn-press transition-colors mb-2"
-        >
-          −
-        </button>
+        <div className="flex gap-4 mb-2">
+          <button
+            onClick={() => addScore(team, 1)}
+            className="min-h-[48px] min-w-[64px] rounded-lg text-2xl font-bold bg-[var(--color-success)] text-white hover:bg-green-600 btn-press transition-colors"
+          >
+            +
+          </button>
+          <button
+            onClick={() => addScore(team, -1)}
+            className="min-h-[48px] min-w-[64px] rounded-lg text-2xl font-bold bg-gray-600 text-white hover:bg-gray-700 btn-press transition-colors"
+          >
+            −
+          </button>
+        </div>
       )}
 
       {/* Mobile landscape: Score buttons - always visible */}
