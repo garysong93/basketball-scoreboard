@@ -121,150 +121,62 @@ export function Scoreboard() {
       </div>
 
       {/* Bottom toolbar - responsive with priority-based layout */}
-      <div className="relative flex flex-wrap justify-center items-center gap-1.5 sm:gap-2 md:gap-3 p-2 sm:p-3 md:p-4 bg-[var(--color-bg-secondary)]">
-        {/* === PRIMARY ACTIONS (Always visible) === */}
-
-        {/* Settings - First for initial setup */}
+      {/* Mobile: Simplified 4-button toolbar */}
+      <div className="md:hidden flex justify-around items-center py-3 px-2 bg-[var(--color-bg-secondary)]">
+        {/* Settings (contains New Game) */}
         {!isViewer && (
           <button
             onClick={() => setShowSettings(true)}
-            className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base bg-[var(--color-accent)] text-white hover:bg-orange-600 transition-colors"
-            title={language === 'en' ? 'Game settings, team names, rules' : '比赛设置、队名、规则'}
+            className="flex flex-col items-center justify-center min-h-[48px] min-w-[48px] px-3 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:bg-orange-600 transition-colors"
+            title={language === 'en' ? 'Game settings' : '比赛设置'}
           >
-            ⚙️ <span className="hidden sm:inline">{t.settings}</span>
+            <span className="text-xl">⚙️</span>
+            <span className="text-xs mt-1">{t.settings}</span>
           </button>
         )}
 
-        {/* New Game - Reset all data */}
-        {!isViewer && (
-          <button
-            onClick={handleNewGame}
-            className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base bg-red-600 text-white hover:bg-red-700 transition-colors"
-            title={language === 'en' ? 'Start a new game (reset all data)' : '开始新比赛（重置所有数据）'}
-          >
-            🔄 <span className="hidden sm:inline">{t.newGame}</span>
-          </button>
-        )}
-
-        {/* Player Stats - Most used during game */}
+        {/* Player Stats */}
         {!isViewer && (
           <button
             onClick={() => setSelectedTeam('home')}
-            className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base bg-[var(--color-success)] text-white hover:bg-green-600 transition-colors"
-            title={language === 'en' ? 'Add scores and track player stats' : '加分和记录球员数据'}
+            className="flex flex-col items-center justify-center min-h-[48px] min-w-[48px] px-3 py-2 rounded-lg bg-[var(--color-success)] text-white hover:bg-green-600 transition-colors"
+            title={language === 'en' ? 'Player stats' : '球员数据'}
           >
-            📊 <span className="hidden sm:inline">{t.playerStats}</span>
+            <span className="text-xl">📊</span>
+            <span className="text-xs mt-1">{language === 'en' ? 'Stats' : '数据'}</span>
           </button>
         )}
 
-        {/* Timeline - View game events */}
-        <button
-          onClick={() => setShowTimeline(true)}
-          className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors"
-          title={language === 'en' ? 'View game events history' : '查看比赛事件历史'}
-        >
-          📋 <span className="hidden md:inline">{language === 'en' ? 'Timeline' : '时间线'}</span>
-        </button>
-
-        {/* Fullscreen - For actual game use */}
-        <button
-          onClick={toggleFullscreen}
-          className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors"
-          title={language === 'en' ? 'Toggle fullscreen mode' : '切换全屏模式'}
-        >
-          {isFullscreen ? '⛶' : '⛶'} <span className="hidden md:inline">{isFullscreen ? t.exitFullscreen : t.fullscreen}</span>
-        </button>
-
-        {/* Share - Real-time sync (only show if Firebase is configured) */}
+        {/* Share */}
         {isFirebaseConfigured && (
           <button
             onClick={() => setShowShare(true)}
-            className={`flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base font-medium transition-colors ${
+            className={`flex flex-col items-center justify-center min-h-[48px] min-w-[48px] px-3 py-2 rounded-lg transition-colors ${
               isHost
                 ? 'bg-[var(--color-success)] text-white'
                 : isViewer
                 ? 'bg-[var(--color-accent)] text-white'
                 : 'bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700'
             }`}
-            title={language === 'en' ? 'Share with other devices (real-time sync)' : '分享到其他设备（实时同步）'}
+            title={language === 'en' ? 'Share' : '分享'}
           >
-            🔗 <span className="hidden md:inline">{language === 'en' ? 'Share' : '分享'}</span>
+            <span className="text-xl">🔗</span>
+            <span className="text-xs mt-1">{language === 'en' ? 'Share' : '分享'}</span>
           </button>
         )}
 
-        {/* AI Assistant button (mobile only) */}
-        <button
-          onClick={() => setShowMobileAssistant(true)}
-          className="lg:hidden flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors"
-          title={language === 'en' ? 'AI Assistant' : 'AI 助手'}
-        >
-          🤖 <span className="hidden sm:inline">AI</span>
-        </button>
-
-        {/* Divider (tablet+ only) */}
-        <div className="hidden md:block w-px h-8 bg-[var(--color-text-secondary)]/30" />
-
-        {/* === SECONDARY ACTIONS (Hidden in "More" menu on mobile) === */}
-
-        {/* Desktop: Show all secondary actions */}
-        <div className="hidden md:flex items-center gap-2 md:gap-3">
-          {/* Keyboard Shortcuts */}
-          {!isViewer && (
-            <button
-              onClick={() => setShowKeyboardHelp(true)}
-              className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors"
-              title={language === 'en' ? 'Learn keyboard shortcuts' : '学习键盘快捷键'}
-            >
-              ⌨️ <span className="hidden lg:inline">{t.keyboard}</span>
-            </button>
-          )}
-
-          {/* Export */}
-          <button
-            onClick={() => setShowReport(true)}
-            className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors"
-            title={language === 'en' ? 'Export game report' : '导出比赛报告'}
-          >
-            📄 <span className="hidden lg:inline">{language === 'en' ? 'Export' : '导出'}</span>
-          </button>
-
-          {/* OBS Link */}
-          {!isViewer && (
-            <button
-              onClick={copyOBSLink}
-              className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors"
-              title={language === 'en' ? 'Copy OBS overlay link for live streaming' : '复制OBS叠加层链接用于直播'}
-            >
-              📺 <span className="hidden lg:inline">{t.copyObsLink}</span>
-            </button>
-          )}
-
-          {/* Voice control */}
-          {!isViewer && (
-            <div className="flex items-center">
-              <VoiceControl />
-              <button
-                onClick={() => setShowVoiceHelp(true)}
-                className="flex items-center px-2 py-2 rounded-r-lg bg-[var(--color-bg-primary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors text-sm -ml-2 border-l border-[var(--color-bg-secondary)]"
-                title={language === 'en' ? 'Voice commands help' : '语音命令帮助'}
-              >
-                ❓
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Mobile: "More" menu button */}
-        <div className="relative md:hidden">
+        {/* More menu */}
+        <div className="relative">
           <button
             onClick={() => setShowMoreMenu(!showMoreMenu)}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors"
+            className="flex flex-col items-center justify-center min-h-[48px] min-w-[48px] px-3 py-2 rounded-lg bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors"
             title={language === 'en' ? 'More options' : '更多选项'}
           >
-            ⋯
+            <span className="text-xl">⋯</span>
+            <span className="text-xs mt-1">{language === 'en' ? 'More' : '更多'}</span>
           </button>
 
-          {/* Dropdown menu */}
+          {/* More dropdown menu */}
           {showMoreMenu && (
             <>
               {/* Backdrop */}
@@ -273,41 +185,203 @@ export function Scoreboard() {
                 onClick={() => setShowMoreMenu(false)}
               />
               {/* Menu */}
-              <div className="absolute bottom-full right-0 mb-2 w-48 py-2 rounded-lg bg-[var(--color-bg-primary)] border border-[var(--color-bg-secondary)] shadow-xl z-50">
+              <div className="absolute bottom-full right-0 mb-2 w-56 py-2 rounded-lg bg-[var(--color-bg-primary)] border border-[var(--color-bg-secondary)] shadow-xl z-50">
+                {/* New Game */}
                 {!isViewer && (
                   <button
-                    onClick={() => { setShowKeyboardHelp(true); setShowMoreMenu(false); }}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-left text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)] transition-colors"
+                    onClick={() => { handleNewGame(); setShowMoreMenu(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 min-h-[48px] text-sm text-left text-red-400 hover:bg-[var(--color-bg-secondary)] transition-colors"
                   >
-                    ⌨️ {t.keyboard}
+                    🔄 {t.newGame}
                   </button>
                 )}
+                {/* Timeline */}
+                <button
+                  onClick={() => { setShowTimeline(true); setShowMoreMenu(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 min-h-[48px] text-sm text-left text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)] transition-colors"
+                >
+                  📋 {language === 'en' ? 'Timeline' : '时间线'}
+                </button>
+                {/* Fullscreen */}
+                <button
+                  onClick={() => { toggleFullscreen(); setShowMoreMenu(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 min-h-[48px] text-sm text-left text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)] transition-colors"
+                >
+                  ⛶ {isFullscreen ? t.exitFullscreen : t.fullscreen}
+                </button>
+                {/* Export */}
                 <button
                   onClick={() => { setShowReport(true); setShowMoreMenu(false); }}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-left text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)] transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 min-h-[48px] text-sm text-left text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)] transition-colors"
                 >
                   📄 {language === 'en' ? 'Export Report' : '导出报告'}
                 </button>
+                {/* OBS Link */}
                 {!isViewer && (
                   <button
                     onClick={() => { copyOBSLink(); setShowMoreMenu(false); }}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-left text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)] transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-3 min-h-[48px] text-sm text-left text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)] transition-colors"
                   >
                     📺 {t.copyObsLink}
                   </button>
                 )}
+                {/* Keyboard Shortcuts */}
+                {!isViewer && (
+                  <button
+                    onClick={() => { setShowKeyboardHelp(true); setShowMoreMenu(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 min-h-[48px] text-sm text-left text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)] transition-colors"
+                  >
+                    ⌨️ {t.keyboard}
+                  </button>
+                )}
+                {/* Voice Commands */}
                 {!isViewer && (
                   <button
                     onClick={() => { setShowVoiceHelp(true); setShowMoreMenu(false); }}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-left text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)] transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-3 min-h-[48px] text-sm text-left text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)] transition-colors"
                   >
                     🎤 {language === 'en' ? 'Voice Commands' : '语音命令'}
                   </button>
                 )}
+                {/* AI Assistant */}
+                <button
+                  onClick={() => { setShowMobileAssistant(true); setShowMoreMenu(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 min-h-[48px] text-sm text-left text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)] transition-colors"
+                >
+                  🤖 {language === 'en' ? 'AI Assistant' : 'AI 助手'}
+                </button>
               </div>
             </>
           )}
         </div>
+      </div>
+
+      {/* Desktop/Tablet toolbar */}
+      <div className="hidden md:flex relative flex-wrap justify-center items-center gap-2 md:gap-3 p-3 md:p-4 bg-[var(--color-bg-secondary)]">
+        {/* Settings */}
+        {!isViewer && (
+          <button
+            onClick={() => setShowSettings(true)}
+            className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg text-sm sm:text-base bg-[var(--color-accent)] text-white hover:bg-orange-600 transition-colors"
+            title={language === 'en' ? 'Game settings, team names, rules' : '比赛设置、队名、规则'}
+          >
+            ⚙️ {t.settings}
+          </button>
+        )}
+
+        {/* New Game */}
+        {!isViewer && (
+          <button
+            onClick={handleNewGame}
+            className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg text-sm sm:text-base bg-red-600 text-white hover:bg-red-700 transition-colors"
+            title={language === 'en' ? 'Start a new game (reset all data)' : '开始新比赛（重置所有数据）'}
+          >
+            🔄 {t.newGame}
+          </button>
+        )}
+
+        {/* Player Stats */}
+        {!isViewer && (
+          <button
+            onClick={() => setSelectedTeam('home')}
+            className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg text-sm sm:text-base bg-[var(--color-success)] text-white hover:bg-green-600 transition-colors"
+            title={language === 'en' ? 'Add scores and track player stats' : '加分和记录球员数据'}
+          >
+            📊 {t.playerStats}
+          </button>
+        )}
+
+        {/* Timeline */}
+        <button
+          onClick={() => setShowTimeline(true)}
+          className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg text-sm sm:text-base bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors"
+          title={language === 'en' ? 'View game events history' : '查看比赛事件历史'}
+        >
+          📋 <span className="hidden lg:inline">{language === 'en' ? 'Timeline' : '时间线'}</span>
+        </button>
+
+        {/* Fullscreen */}
+        <button
+          onClick={toggleFullscreen}
+          className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg text-sm sm:text-base bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors"
+          title={language === 'en' ? 'Toggle fullscreen mode' : '切换全屏模式'}
+        >
+          ⛶ <span className="hidden lg:inline">{isFullscreen ? t.exitFullscreen : t.fullscreen}</span>
+        </button>
+
+        {/* Share */}
+        {isFirebaseConfigured && (
+          <button
+            onClick={() => setShowShare(true)}
+            className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition-colors ${
+              isHost
+                ? 'bg-[var(--color-success)] text-white'
+                : isViewer
+                ? 'bg-[var(--color-accent)] text-white'
+                : 'bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700'
+            }`}
+            title={language === 'en' ? 'Share with other devices (real-time sync)' : '分享到其他设备（实时同步）'}
+          >
+            🔗 <span className="hidden lg:inline">{language === 'en' ? 'Share' : '分享'}</span>
+          </button>
+        )}
+
+        {/* AI Assistant button (tablet only, hidden on desktop where sidebar shows) */}
+        <button
+          onClick={() => setShowMobileAssistant(true)}
+          className="lg:hidden flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg text-sm sm:text-base bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors"
+          title={language === 'en' ? 'AI Assistant' : 'AI 助手'}
+        >
+          🤖 AI
+        </button>
+
+        {/* Divider */}
+        <div className="w-px h-8 bg-[var(--color-text-secondary)]/30" />
+
+        {/* Keyboard Shortcuts */}
+        {!isViewer && (
+          <button
+            onClick={() => setShowKeyboardHelp(true)}
+            className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors"
+            title={language === 'en' ? 'Learn keyboard shortcuts' : '学习键盘快捷键'}
+          >
+            ⌨️ <span className="hidden lg:inline">{t.keyboard}</span>
+          </button>
+        )}
+
+        {/* Export */}
+        <button
+          onClick={() => setShowReport(true)}
+          className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors"
+          title={language === 'en' ? 'Export game report' : '导出比赛报告'}
+        >
+          📄 <span className="hidden lg:inline">{language === 'en' ? 'Export' : '导出'}</span>
+        </button>
+
+        {/* OBS Link */}
+        {!isViewer && (
+          <button
+            onClick={copyOBSLink}
+            className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors"
+            title={language === 'en' ? 'Copy OBS overlay link for live streaming' : '复制OBS叠加层链接用于直播'}
+          >
+            📺 <span className="hidden lg:inline">{t.copyObsLink}</span>
+          </button>
+        )}
+
+        {/* Voice control */}
+        {!isViewer && (
+          <div className="flex items-center">
+            <VoiceControl />
+            <button
+              onClick={() => setShowVoiceHelp(true)}
+              className="flex items-center px-2 py-2 rounded-r-lg bg-[var(--color-bg-primary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-slate-700 transition-colors text-sm -ml-2 border-l border-[var(--color-bg-secondary)]"
+              title={language === 'en' ? 'Voice commands help' : '语音命令帮助'}
+            >
+              ❓
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Modals */}

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useGameStore } from '../stores/gameStore';
 import { translations } from '../i18n';
 import { FoulIndicator } from './FoulIndicator';
@@ -16,6 +17,7 @@ export function TeamScore({ team }: TeamScoreProps) {
     possession,
     animatingScore,
     language,
+    addScore,
     addFoul,
     callTimeout,
     setPossession,
@@ -28,6 +30,12 @@ export function TeamScore({ team }: TeamScoreProps) {
   const hasPossession = possession === team;
   const isAnimating = animatingScore === team;
   const isHome = team === 'home';
+
+  // Mobile expanded state for action panel
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Check if any action is available
+  const hasAnyAction = permissions.canScore || permissions.canFoul || permissions.canTimeout || permissions.canPossession;
 
   return (
     <div
@@ -49,26 +57,115 @@ export function TeamScore({ team }: TeamScoreProps) {
         {teamState.name}
       </div>
 
-      {/* Score - clickable to open player stats */}
-      <div
-        className={`text-5xl sm:text-6xl md:text-7xl lg:text-9xl font-bold my-2 sm:my-3 md:my-4 transition-transform cursor-pointer hover:opacity-80 ${
+      {/* Score - clickable to expand actions on mobile, open player stats on desktop */}
+      <button
+        className={`text-5xl sm:text-6xl md:text-7xl lg:text-9xl font-bold my-2 sm:my-3 md:my-4 transition-transform cursor-pointer hover:opacity-80 bg-transparent border-none ${
           isAnimating ? 'score-animate' : ''
         }`}
         style={{ color: teamState.color }}
-        onClick={() => setSelectedTeam(team)}
-        title={language === 'en' ? 'Click to add score via player' : '点击通过球员加分'}
+        onClick={() => {
+          // On mobile, toggle expanded panel; on desktop, open player stats
+          if (window.innerWidth < 768 && hasAnyAction) {
+            setIsExpanded(!isExpanded);
+          } else {
+            setSelectedTeam(team);
+          }
+        }}
+        title={language === 'en' ? 'Tap for actions' : '点击操作'}
       >
         {teamState.score}
-      </div>
+      </button>
 
-      {/* Score hint - only show if user has any edit permissions */}
+      {/* Mobile: Tap hint */}
+      {hasAnyAction && (
+        <div
+          className="md:hidden text-xs text-[var(--color-text-secondary)] mb-2 cursor-pointer"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          {isExpanded
+            ? (language === 'en' ? '▲ tap to close' : '▲ 点击收起')
+            : (language === 'en' ? '▼ tap for actions' : '▼ 点击操作')
+          }
+        </div>
+      )}
+
+      {/* Desktop: Score hint button */}
       {(permissions.canScore || permissions.canFoul || permissions.canEditPlayers) && (
         <button
           onClick={() => setSelectedTeam(team)}
-          className="mb-2 sm:mb-3 md:mb-4 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors flex items-center gap-1 sm:gap-2"
+          className="hidden md:flex mb-2 sm:mb-3 md:mb-4 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors items-center gap-1 sm:gap-2"
         >
-          📊 <span className="hidden xs:inline sm:inline">{language === 'en' ? 'Add Stats' : '添加数据'}</span>
+          📊 {language === 'en' ? 'Add Stats' : '添加数据'}
         </button>
+      )}
+
+      {/* Mobile: Expanded action panel */}
+      {isExpanded && (
+        <div className="md:hidden w-full animate-fade-in mb-3">
+          {/* Score buttons */}
+          {permissions.canScore && (
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              <button
+                onClick={() => addScore(team, 1)}
+                className="min-h-[48px] rounded-lg text-lg font-bold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
+              >
+                +1
+              </button>
+              <button
+                onClick={() => addScore(team, 2)}
+                className="min-h-[48px] rounded-lg text-lg font-bold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
+              >
+                +2
+              </button>
+              <button
+                onClick={() => addScore(team, 3)}
+                className="min-h-[48px] rounded-lg text-lg font-bold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
+              >
+                +3
+              </button>
+            </div>
+          )}
+
+          {/* Action buttons row */}
+          <div className="grid grid-cols-3 gap-2">
+            {permissions.canFoul && (
+              <button
+                onClick={() => addFoul(team)}
+                className="min-h-[48px] rounded-lg text-sm font-semibold bg-[var(--color-warning)] text-black hover:bg-yellow-500 btn-press transition-colors"
+              >
+                +Foul
+              </button>
+            )}
+            {permissions.canTimeout && (
+              <button
+                onClick={() => callTimeout(team)}
+                className="min-h-[48px] rounded-lg text-sm font-semibold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
+              >
+                Timeout
+              </button>
+            )}
+            {permissions.canPossession && (
+              <button
+                onClick={() => setPossession(team)}
+                className={`min-h-[48px] rounded-lg text-sm font-semibold btn-press transition-colors ${
+                  hasPossession
+                    ? 'bg-[var(--color-accent)] text-white'
+                    : 'bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600'
+                }`}
+              >
+                ◄►
+              </button>
+            )}
+          </div>
+
+          {/* Player stats link */}
+          <button
+            onClick={() => setSelectedTeam(team)}
+            className="w-full mt-3 min-h-[48px] rounded-lg text-sm font-medium bg-[var(--color-success)] text-white hover:bg-green-600 btn-press transition-colors flex items-center justify-center gap-2"
+          >
+            📊 {language === 'en' ? 'Player Stats' : '球员数据'}
+          </button>
+        </div>
       )}
 
       {/* Fouls and Timeouts row */}
@@ -77,15 +174,14 @@ export function TeamScore({ team }: TeamScoreProps) {
         <TimeoutIndicator team={team} />
       </div>
 
-      {/* Action buttons - only show buttons user has permission for */}
-      <div className="flex gap-1 sm:gap-2 mt-2 sm:mt-3 md:mt-4">
+      {/* Desktop: Action buttons - always visible */}
+      <div className="hidden md:flex gap-1 sm:gap-2 mt-2 sm:mt-3 md:mt-4">
         {permissions.canFoul && (
           <button
             onClick={() => addFoul(team)}
             className="px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-semibold bg-[var(--color-warning)] text-black hover:bg-yellow-500 btn-press transition-colors"
           >
-            <span className="hidden sm:inline">{t.addFoul}</span>
-            <span className="sm:hidden">+F</span>
+            {t.addFoul}
           </button>
         )}
         {permissions.canTimeout && (
@@ -93,8 +189,7 @@ export function TeamScore({ team }: TeamScoreProps) {
             onClick={() => callTimeout(team)}
             className="px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-semibold bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-slate-600 btn-press transition-colors"
           >
-            <span className="hidden sm:inline">{t.timeout}</span>
-            <span className="sm:hidden">TO</span>
+            {t.timeout}
           </button>
         )}
         {permissions.canPossession && (

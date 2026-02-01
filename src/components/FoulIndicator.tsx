@@ -23,39 +23,69 @@ export function FoulIndicator({ team }: FoulIndicatorProps) {
   const foulDots = Array.from({ length: maxVisibleFouls }, (_, i) => i < fouls);
 
   return (
-    <div className="flex flex-col items-center gap-0.5 sm:gap-1">
-      <div className="text-[10px] sm:text-xs text-[var(--color-text-secondary)] uppercase">
-        {t.fouls}
+    <div className="flex flex-col items-center gap-1 sm:gap-1.5">
+      {/* Mobile: Show fouls as number */}
+      <div className="md:hidden">
+        <div className="text-xs text-[var(--color-text-secondary)] uppercase mb-0.5">
+          {t.fouls}
+        </div>
+        <div className={`text-lg font-bold ${
+          isDoubleBonus
+            ? 'text-[var(--color-danger)]'
+            : isBonus
+            ? 'text-[var(--color-warning)]'
+            : 'text-[var(--color-text-primary)]'
+        }`}>
+          {fouls}/{bonusFouls}
+        </div>
+        {/* Bonus indicator */}
+        {isDoubleBonus && (
+          <div className="text-xs font-bold text-[var(--color-danger)] animate-pulse mt-0.5">
+            {t.doubleBonus}
+          </div>
+        )}
+        {isBonus && !isDoubleBonus && (
+          <div className="text-xs font-bold text-[var(--color-warning)] mt-0.5">
+            {t.bonus}
+          </div>
+        )}
       </div>
 
-      <div className="flex gap-0.5 sm:gap-1">
-        {foulDots.map((isFouled, index) => (
-          <div
-            key={index}
-            className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-colors ${
-              isFouled
-                ? isDoubleBonus
-                  ? 'bg-[var(--color-danger)]'
-                  : isBonus
-                  ? 'bg-[var(--color-warning)]'
-                  : 'bg-[var(--color-accent)]'
-                : 'bg-[var(--color-bg-secondary)] border border-[var(--color-text-secondary)]'
-            }`}
-          />
-        ))}
-      </div>
+      {/* Desktop: Show foul dots */}
+      <div className="hidden md:flex flex-col items-center gap-1">
+        <div className="text-xs text-[var(--color-text-secondary)] uppercase">
+          {t.fouls}
+        </div>
 
-      {/* Bonus indicator */}
-      {isDoubleBonus && (
-        <div className="text-[10px] sm:text-xs font-bold text-[var(--color-danger)] animate-pulse">
-          {t.doubleBonus}
+        <div className="flex gap-1">
+          {foulDots.map((isFouled, index) => (
+            <div
+              key={index}
+              className={`w-3 h-3 rounded-full transition-colors ${
+                isFouled
+                  ? isDoubleBonus
+                    ? 'bg-[var(--color-danger)]'
+                    : isBonus
+                    ? 'bg-[var(--color-warning)]'
+                    : 'bg-[var(--color-accent)]'
+                  : 'bg-[var(--color-bg-secondary)] border border-[var(--color-text-secondary)]'
+              }`}
+            />
+          ))}
         </div>
-      )}
-      {isBonus && !isDoubleBonus && (
-        <div className="text-[10px] sm:text-xs font-bold text-[var(--color-warning)]">
-          {t.bonus}
-        </div>
-      )}
+
+        {/* Bonus indicator */}
+        {isDoubleBonus && (
+          <div className="text-xs font-bold text-[var(--color-danger)] animate-pulse">
+            {t.doubleBonus}
+          </div>
+        )}
+        {isBonus && !isDoubleBonus && (
+          <div className="text-xs font-bold text-[var(--color-warning)]">
+            {t.bonus}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

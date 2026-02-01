@@ -113,8 +113,24 @@ body {
   animation: slide-up 0.3s ease-out;
 }
 
+/* Slide in from right animation for mobile drawer */
+@keyframes slide-in-right {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
 /* Mobile optimizations */
-@media (max-width: 640px) {
+@media (max-width: 767px) {
   /* Prevent horizontal overflow */
   .scoreboard-container {
     overflow-x: hidden;
@@ -126,9 +142,27 @@ body {
     height: 4px;
   }
 
-  /* Better tap targets */
-  button {
-    min-height: 36px;
+  /* Better tap targets - Apple recommends 44px minimum */
+  button,
+  [role="button"],
+  a.btn,
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Increase button spacing to prevent mistaps */
+  .button-group,
+  .btn-group {
+    gap: 8px;
+  }
+
+  /* Ensure dropdown menu items are tappable */
+  .dropdown-item,
+  [role="menuitem"] {
+    min-height: 48px;
+    padding-top: 12px;
+    padding-bottom: 12px;
   }
 }
 

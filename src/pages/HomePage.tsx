@@ -33,8 +33,12 @@ export function HomePage() {
       {/* Hero Banner - hidden in fullscreen, can be dismissed */}
       {!isFullscreen && <HeroBanner />}
 
-      {/* Quick Help - hidden in fullscreen */}
-      {!isFullscreen && <QuickHelp />}
+      {/* Quick Help - hidden in fullscreen and on mobile */}
+      {!isFullscreen && (
+        <div className="hidden md:block">
+          <QuickHelp />
+        </div>
+      )}
 
       {/* Main scoreboard area */}
       <main className="flex-1 flex flex-col">
