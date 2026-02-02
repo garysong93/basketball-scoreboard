@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:ci": "echo 'Using pre-built dist folder'",
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "serve dist -s -p ${PORT:-3000}"
