@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Scoreboard } from '../components/Scoreboard';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
@@ -10,7 +11,18 @@ import { SEOContentSection } from '../components/SEOContentSection';
 import { useGameStore } from '../stores/gameStore';
 
 export function HomePage() {
-  const { isFullscreen } = useGameStore();
+  const { isFullscreen, language } = useGameStore();
+
+  const seoContent = {
+    en: {
+      title: 'Free Basketball Scoreboard Online - FIBA, NBA, NCAA Timer & Stats',
+      description: 'Free online basketball scoreboard with game timer, shot clock, player stats, and OBS streaming. Works offline. Supports FIBA, NBA, NCAA, and 3x3 rules.',
+    },
+    zh: {
+      title: '免费在线篮球计分板 - FIBA、NBA、NCAA 计时器与统计',
+      description: '免费在线篮球计分板，带比赛计时器、进攻时间、球员统计和OBS直播功能。支持离线使用。支持FIBA、NBA、NCAA和3x3规则。',
+    },
+  };
 
   // Control body overflow based on fullscreen state
   useEffect(() => {
@@ -27,6 +39,11 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--color-bg-primary)]">
+      <Helmet>
+        <title>{seoContent[language].title}</title>
+        <meta name="description" content={seoContent[language].description} />
+        <link rel="canonical" href="https://www.basketballscoreboardonline.com/" />
+      </Helmet>
       {/* Header - hidden in fullscreen */}
       {!isFullscreen && <Header />}
 

@@ -1,8 +1,20 @@
+import { Helmet } from 'react-helmet-async';
 import { useGameStore } from '../stores/gameStore';
 import { Header } from '../components/Header';
 
 export function RulesPage() {
   const { language } = useGameStore();
+
+  const seoContent = {
+    en: {
+      title: 'Basketball Rules Guide - FIBA, NBA, NCAA Rules Explained | Basketball Scoreboard',
+      description: 'Complete basketball rules guide covering FIBA, NBA, NCAA and 3x3 rules. Learn scoring, fouls, violations, shot clock, and game procedures for all major basketball leagues.',
+    },
+    zh: {
+      title: '篮球规则指南 - FIBA、NBA、NCAA 规则详解 | 篮球计分板',
+      description: '完整篮球规则指南，涵盖 FIBA、NBA、NCAA 和 3x3 规则。学习得分、犯规、违例、进攻时间和比赛程序。',
+    },
+  };
 
   const content = {
     en: {
@@ -186,6 +198,11 @@ export function RulesPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
+      <Helmet>
+        <title>{seoContent[language].title}</title>
+        <meta name="description" content={seoContent[language].description} />
+        <link rel="canonical" href="https://www.basketballscoreboardonline.com/rules" />
+      </Helmet>
       <Header />
 
       <main className="max-w-4xl mx-auto px-4 py-8">

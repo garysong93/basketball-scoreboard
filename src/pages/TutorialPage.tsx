@@ -1,8 +1,20 @@
+import { Helmet } from 'react-helmet-async';
 import { useGameStore } from '../stores/gameStore';
 import { Header } from '../components/Header';
 
 export function TutorialPage() {
   const { language } = useGameStore();
+
+  const seoContent = {
+    en: {
+      title: 'How to Use Basketball Scoreboard - Complete Tutorial | Basketball Scoreboard',
+      description: 'Step-by-step tutorial for Basketball Scoreboard. Learn scoring, timer controls, keyboard shortcuts, player stats tracking, OBS streaming integration, and more.',
+    },
+    zh: {
+      title: '篮球计分板使用教程 - 完整指南 | 篮球计分板',
+      description: '篮球计分板分步教程。学习记分、计时器控制、键盘快捷键、球员统计追踪、OBS直播集成等。',
+    },
+  };
 
   const content = {
     en: {
@@ -410,6 +422,11 @@ export function TutorialPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
+      <Helmet>
+        <title>{seoContent[language].title}</title>
+        <meta name="description" content={seoContent[language].description} />
+        <link rel="canonical" href="https://www.basketballscoreboardonline.com/tutorial" />
+      </Helmet>
       <Header />
 
       <main className="max-w-4xl mx-auto px-4 py-8">

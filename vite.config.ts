@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import prerender from '@prerenderer/rollup-plugin'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -57,6 +58,76 @@ export default defineConfig({
           }
         ]
       }
-    })
+    }),
+    // Pre-render static content pages for SEO
+    prerender({
+      routes: ['/', '/rules', '/faq', '/tutorial'],
+      renderer: '@prerenderer/renderer-puppeteer',
+      rendererOptions: {
+        renderAfterDocumentEvent: 'render-event',
+        headless: true,
+        executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      },
+      postProcess(renderedRoute) {
+        // Update meta tags per route for better SEO
+        const routeMeta: Record<string, { title: string; description: string }> = {
+          '/': {
+            title: 'Free Basketball Scoreboard Online - FIBA, NBA, NCAA Timer & Stats',
+            description: 'Free online basketball scoreboard with game timer, shot clock, player stats, and OBS streaming. Works offline. Supports FIBA, NBA, NCAA, and 3x3 rules.',
+          },
+          '/rules': {
+            title: 'Basketball Rules Guide - FIBA, NBA, NCAA Rules Explained | Basketball Scoreboard',
+            description: 'Complete basketball rules guide covering FIBA, NBA, NCAA and 3x3 rules. Learn scoring, fouls, violations, shot clock, and game procedures for all major basketball leagues.',
+          },
+          '/faq': {
+            title: 'FAQ - Basketball Scoreboard Help & Support | Basketball Scoreboard',
+            description: 'Frequently asked questions about Basketball Scoreboard. Learn about features, keyboard shortcuts, OBS streaming, offline mode, and more.',
+          },
+          '/tutorial': {
+            title: 'How to Use Basketball Scoreboard - Complete Tutorial | Basketball Scoreboard',
+            description: 'Step-by-step tutorial for Basketball Scoreboard. Learn scoring, timer controls, keyboard shortcuts, player stats tracking, OBS streaming integration, and more.',
+          },
+        };
+
+        const meta = routeMeta[renderedRoute.route];
+        if (meta) {
+          // Update title
+          renderedRoute.html = renderedRoute.html.replace(
+            /<title>[^<]*<\/title>/,
+            `<title>${meta.title}</title>`
+          );
+          // Update meta description
+          renderedRoute.html = renderedRoute.html.replace(
+            /<meta name="description" content="[^"]*">/,
+            `<meta name="description" content="${meta.description}">`
+          );
+          // Update OG title
+          renderedRoute.html = renderedRoute.html.replace(
+            /<meta property="og:title" content="[^"]*">/,
+            `<meta property="og:title" content="${meta.title}">`
+          );
+          // Update OG description
+          renderedRoute.html = renderedRoute.html.replace(
+            /<meta property="og:description" content="[^"]*">/,
+            `<meta property="og:description" content="${meta.description}">`
+          );
+          // Update Twitter title
+          renderedRoute.html = renderedRoute.html.replace(
+            /<meta property="twitter:title" content="[^"]*">/,
+            `<meta property="twitter:title" content="${meta.title}">`
+          );
+          // Update Twitter description
+          renderedRoute.html = renderedRoute.html.replace(
+            /<meta property="twitter:description" content="[^"]*">/,
+            `<meta property="twitter:description" content="${meta.description}">`
+          );
+          // Update canonical URL
+          renderedRoute.html = renderedRoute.html.replace(
+            /<link rel="canonical" href="[^"]*">/,
+            `<link rel="canonical" href="https://www.basketballscoreboardonline.com${renderedRoute.route === '/' ? '' : renderedRoute.route}">`
+          );
+        }
+      },
+    }),
   ],
 })

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useGameStore } from '../stores/gameStore';
 import { Header } from '../components/Header';
 
@@ -12,6 +13,17 @@ export function FAQPage() {
   const { language } = useGameStore();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('all');
+
+  const seoContent = {
+    en: {
+      title: 'FAQ - Basketball Scoreboard Help & Support | Basketball Scoreboard',
+      description: 'Frequently asked questions about Basketball Scoreboard. Learn about features, keyboard shortcuts, OBS streaming, offline mode, and more.',
+    },
+    zh: {
+      title: '常见问题 - 篮球计分板帮助与支持 | 篮球计分板',
+      description: '篮球计分板常见问题解答。了解功能特性、键盘快捷键、OBS直播、离线模式等。',
+    },
+  };
 
   const content = {
     en: {
@@ -203,6 +215,11 @@ export function FAQPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
+      <Helmet>
+        <title>{seoContent[language].title}</title>
+        <meta name="description" content={seoContent[language].description} />
+        <link rel="canonical" href="https://www.basketballscoreboardonline.com/faq" />
+      </Helmet>
       <Header />
 
       <main className="max-w-4xl mx-auto px-4 py-8">

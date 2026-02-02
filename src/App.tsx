@@ -18,6 +18,11 @@ function App() {
     }
   }, [theme]);
 
+  // Notify prerenderer that page has finished rendering
+  useEffect(() => {
+    document.dispatchEvent(new Event('render-event'));
+  }, []);
+
   // Simple routing based on URL path
   const path = window.location.pathname;
 
