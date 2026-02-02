@@ -7,32 +7,41 @@ import { execSync } from 'child_process'
 
 // Find chromium/chrome executable for pre-rendering
 function findChromium(): string | undefined {
-  // Check common locations
+  // First try environment variable
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    return process.env.PUPPETEER_EXECUTABLE_PATH;
+  }
+
+  // Try to find via which (works on both local and CI)
+  try {
+    const result = execSync('which chromium chromium-browser google-chrome 2>/dev/null | head -1', { encoding: 'utf-8' }).trim();
+    if (result) {
+      console.log(`[prerender] Found browser at: ${result}`);
+      return result;
+    }
+  } catch {
+    // Not found via which
+  }
+
+  // Check common locations as fallback
   const paths = [
-    process.env.PUPPETEER_EXECUTABLE_PATH,
     '/usr/bin/chromium',
     '/usr/bin/chromium-browser',
     '/usr/bin/google-chrome',
     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  ].filter(Boolean) as string[];
+  ];
 
   for (const p of paths) {
     try {
       execSync(`test -x "${p}"`, { stdio: 'ignore' });
+      console.log(`[prerender] Found browser at: ${p}`);
       return p;
     } catch {
       // Path doesn't exist or isn't executable
     }
   }
 
-  // Try to find via which
-  try {
-    const result = execSync('which chromium chromium-browser google-chrome 2>/dev/null | head -1', { encoding: 'utf-8' }).trim();
-    if (result) return result;
-  } catch {
-    // Not found
-  }
-
+  console.log('[prerender] No browser found, skipping pre-rendering');
   return undefined;
 }
 
