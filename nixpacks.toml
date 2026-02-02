@@ -1,0 +1,7 @@
+# Install chromium for puppeteer pre-rendering during build
+[phases.setup]
+nixPkgs = ["chromium"]
+
+[variables]
+# Tell puppeteer to use system chromium
+PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"

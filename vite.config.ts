@@ -3,6 +3,40 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import prerender from '@prerenderer/rollup-plugin'
+import { execSync } from 'child_process'
+
+// Find chromium/chrome executable for pre-rendering
+function findChromium(): string | undefined {
+  // Check common locations
+  const paths = [
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/google-chrome',
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  ].filter(Boolean) as string[];
+
+  for (const p of paths) {
+    try {
+      execSync(`test -x "${p}"`, { stdio: 'ignore' });
+      return p;
+    } catch {
+      // Path doesn't exist or isn't executable
+    }
+  }
+
+  // Try to find via which
+  try {
+    const result = execSync('which chromium chromium-browser google-chrome 2>/dev/null | head -1', { encoding: 'utf-8' }).trim();
+    if (result) return result;
+  } catch {
+    // Not found
+  }
+
+  return undefined;
+}
+
+const chromiumPath = findChromium();
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -59,14 +93,16 @@ export default defineConfig({
         ]
       }
     }),
-    // Pre-render static content pages for SEO
-    prerender({
+    // Pre-render static content pages for SEO (only if chromium is available)
+    ...(chromiumPath ? [prerender({
       routes: ['/', '/rules', '/faq', '/tutorial'],
       renderer: '@prerenderer/renderer-puppeteer',
       rendererOptions: {
         renderAfterDocumentEvent: 'render-event',
         headless: true,
-        executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+        executablePath: chromiumPath,
+        // Args needed for running in CI/container environments
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
       },
       postProcess(renderedRoute) {
         // Update meta tags per route for better SEO
@@ -128,6 +164,6 @@ export default defineConfig({
           );
         }
       },
-    }),
+    })] : []),
   ],
 })
