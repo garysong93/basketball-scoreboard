@@ -9,7 +9,7 @@
     "build:ci": "echo 'Using pre-built dist folder'",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "serve dist -s -p ${PORT:-3000}"
+    "start": "serve dist -p ${PORT:-3000}"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
