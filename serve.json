@@ -1,5 +1,10 @@
 {
   "rewrites": [
+    { "source": "/rules", "destination": "/rules/index.html" },
+    { "source": "/faq", "destination": "/faq/index.html" },
+    { "source": "/tutorial", "destination": "/tutorial/index.html" },
+    { "source": "/obs", "destination": "/index.html" },
+    { "source": "/obs-minimal", "destination": "/index.html" },
     { "source": "**", "destination": "/index.html" }
   ]
 }
