@@ -167,9 +167,25 @@ export default defineConfig({
             `<meta property="twitter:description" content="${meta.description}">`
           );
           // Update canonical URL
+          const pageUrl = `https://www.basketballscoreboardonline.com${renderedRoute.route === '/' ? '' : renderedRoute.route}`;
           renderedRoute.html = renderedRoute.html.replace(
             /<link rel="canonical" href="[^"]*">/,
-            `<link rel="canonical" href="https://www.basketballscoreboardonline.com${renderedRoute.route === '/' ? '' : renderedRoute.route}">`
+            `<link rel="canonical" href="${pageUrl}">`
+          );
+          // Update meta name="title"
+          renderedRoute.html = renderedRoute.html.replace(
+            /<meta name="title" content="[^"]*">/,
+            `<meta name="title" content="${meta.title}">`
+          );
+          // Update og:url
+          renderedRoute.html = renderedRoute.html.replace(
+            /<meta property="og:url" content="[^"]*">/,
+            `<meta property="og:url" content="${pageUrl}">`
+          );
+          // Update twitter:url
+          renderedRoute.html = renderedRoute.html.replace(
+            /<meta property="twitter:url" content="[^"]*">/,
+            `<meta property="twitter:url" content="${pageUrl}">`
           );
         }
       },

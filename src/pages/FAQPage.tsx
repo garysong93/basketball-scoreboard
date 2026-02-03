@@ -283,13 +283,15 @@ export function FAQPage() {
                 </span>
               </button>
 
-              {openIndex === index && (
-                <div className="px-6 pb-4">
-                  <p className="text-[var(--color-text-secondary)] leading-relaxed">
-                    {faq.answer}
-                  </p>
-                </div>
-              )}
+              <div
+                className={`px-6 overflow-hidden transition-all duration-300 ${
+                  openIndex === index ? 'max-h-96 pb-4' : 'max-h-0'
+                }`}
+              >
+                <p className="text-[var(--color-text-secondary)] leading-relaxed">
+                  {faq.answer}
+                </p>
+              </div>
             </div>
           ))}
         </div>
