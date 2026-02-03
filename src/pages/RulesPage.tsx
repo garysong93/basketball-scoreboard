@@ -200,8 +200,19 @@ export function RulesPage() {
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
       <Helmet>
         <title>{seoContent[language].title}</title>
+        <meta name="title" content={seoContent[language].title} />
         <meta name="description" content={seoContent[language].description} />
         <link rel="canonical" href="https://www.basketballscoreboardonline.com/rules" />
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.basketballscoreboardonline.com/rules" />
+        <meta property="og:title" content={seoContent[language].title} />
+        <meta property="og:description" content={seoContent[language].description} />
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://www.basketballscoreboardonline.com/rules" />
+        <meta name="twitter:title" content={seoContent[language].title} />
+        <meta name="twitter:description" content={seoContent[language].description} />
       </Helmet>
       <Header />
 

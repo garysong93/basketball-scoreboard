@@ -1,8 +1,0 @@
-{
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/obs", "destination": "/index.html" },
-    { "source": "/obs-minimal", "destination": "/index.html" },
-    { "source": "/app", "destination": "/index.html" }
-  ]
-}
