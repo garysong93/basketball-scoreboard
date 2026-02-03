@@ -50,7 +50,7 @@ export function TeamScore({ team, isPortrait = false }: TeamScoreProps) {
         hasPossession ? 'ring-2 ring-[var(--color-accent)]' : ''
       }`}
       style={{
-        backgroundColor: `${teamState.color}15`,
+        backgroundColor: `${teamState.color}20`,
         borderLeft: isHome ? `4px solid ${teamState.color}` : 'none',
         borderRight: !isHome ? `4px solid ${teamState.color}` : 'none',
       }}

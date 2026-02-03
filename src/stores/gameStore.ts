@@ -174,7 +174,7 @@ const createDefaultPlayers = (): PlayerStats[] => {
 const initialState: GameState = {
   rules: RULE_PRESETS.fiba,
   language: 'en',
-  theme: 'light',
+  theme: 'dark',
   isRunning: false,
   gameTime: RULE_PRESETS.fiba.periodLength,
   shotClock: RULE_PRESETS.fiba.shotClock,
