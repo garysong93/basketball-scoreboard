@@ -4,6 +4,7 @@ import { RulesPage } from './pages/RulesPage';
 import { TutorialPage } from './pages/TutorialPage';
 import { FAQPage } from './pages/FAQPage';
 import { HomePage } from './pages/HomePage';
+import { FeedbackButton } from './components/FeedbackButton';
 import { useGameStore } from './stores/gameStore';
 
 function App() {
@@ -37,15 +38,30 @@ function App() {
 
   // Content pages
   if (path === '/rules') {
-    return <RulesPage />;
+    return (
+      <>
+        <RulesPage />
+        <FeedbackButton />
+      </>
+    );
   }
 
   if (path === '/tutorial') {
-    return <TutorialPage />;
+    return (
+      <>
+        <TutorialPage />
+        <FeedbackButton />
+      </>
+    );
   }
 
   if (path === '/faq') {
-    return <FAQPage />;
+    return (
+      <>
+        <FAQPage />
+        <FeedbackButton />
+      </>
+    );
   }
 
   // Redirect /app to homepage (backwards compatibility)
@@ -55,7 +71,12 @@ function App() {
   }
 
   // Homepage with integrated scoreboard
-  return <HomePage />;
+  return (
+    <>
+      <HomePage />
+      <FeedbackButton />
+    </>
+  );
 }
 
 export default App;
