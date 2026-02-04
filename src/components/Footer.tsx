@@ -13,6 +13,7 @@ export function Footer() {
       rules: 'Basketball Rules',
       tutorial: 'How to Use',
       faq: 'FAQ',
+      feedback: 'Feedback',
     },
     zh: {
       tagline: '免费开源篮球计分板',
@@ -23,6 +24,7 @@ export function Footer() {
       rules: '篮球规则',
       tutorial: '使用教程',
       faq: '常见问题',
+      feedback: '反馈',
     },
   };
 
@@ -78,6 +80,16 @@ export function Footer() {
                 <a href="/faq" className="text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">
                   {t.faq}
                 </a>
+              </li>
+              <li>
+                <button
+                  data-tally-open="D4zPNR"
+                  data-tally-emoji-text="👋"
+                  data-tally-emoji-animation="wave"
+                  className="text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors cursor-pointer"
+                >
+                  {t.feedback}
+                </button>
               </li>
             </ul>
           </div>
