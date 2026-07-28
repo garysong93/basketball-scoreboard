@@ -1,0 +1,6 @@
+User-Agent: *
+Allow: /
+Disallow: /obs
+Disallow: /obs-minimal
+
+Sitemap: https://www.basketballscoreboardonline.com/sitemap.xml
